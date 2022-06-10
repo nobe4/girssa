@@ -6,7 +6,7 @@
   "scripts": {
     "fix": "prettier --ignore-path .eslintignore --write .",
     "lint": "eslint .",
-    "build": "ncc build --minify --out dist --source-map --license licenses.txt index.js ",
+    "build": "NODE_OPTIONS=--no-experimental-fetch ncc --debug build --minify --out dist --source-map --license licenses.txt index.js ",
     "test": "jest --coverage",
     "all": "npm run fix && npm run lint && npm run test && npm run build"
   },

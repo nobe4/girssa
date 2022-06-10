@@ -41,7 +41,10 @@ Actions are run from GitHub repos. Packaging the action will create a packaged a
 npm run build
 ```
 
-**Note**: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
+**Notes**:
+
+- We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
+- `NODE_OPTIONS=--no-experimental-fetch` is needed to minify. See https://github.com/parcel-bundler/parcel/issues/8005#issuecomment-1120149358
 
 ## Release
 
