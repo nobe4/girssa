@@ -7,11 +7,13 @@ const self = {
   client: undefined,
   owner: undefined,
   repo: undefined,
+  noop: false,
 
-  setup(token, owner, repo) {
+  setup(token, owner, repo, noop) {
     self.client = github.getOctokit(token);
     self.owner = owner;
     self.repo = repo;
+    self.noop = noop;
   },
 
   // list lists all the issues in the repository.
@@ -20,6 +22,13 @@ const self = {
   //                     Reject with any error that occured.
   list() {
     return new Promise((resolve, reject) => {
+      // Bypass if noop is set
+      if (self.noop) {
+        core.notice(`[NOOP] List all the issues in ${self.owner}/${self.repo}`);
+        resolve([]);
+        return;
+      }
+
       core.debug(`List all the issues in ${self.owner}/${self.repo}`);
 
       self.client.rest.issues
@@ -76,6 +85,14 @@ const self = {
   create_one(item) {
     return new Promise((resolve) => {
       const full_title = `${item.title} - ${item.id}`;
+
+      // Bypass if noop is set
+      if (self.noop) {
+        const message = `[NOOP] Created issue for: '${full_title}'`;
+        core.notice(message);
+        resolve(message);
+        return;
+      }
 
       self.client.rest.issues
 

@@ -12,7 +12,7 @@ async function run() {
 
     const [owner, repo] = full_repository.split("/");
 
-    issues.setup(token, owner, repo);
+    issues.setup(token, owner, repo, noop);
 
     sources
       .read(sources_path)
@@ -27,17 +27,7 @@ async function run() {
       .then(issues.select)
 
       // Create the new issues.
-      .then((items) => {
-        if (noop) {
-          core.notice("Noop'ing the issues creation");
-          return items.map(
-            (item) =>
-              `[NOOP] Created issue for: '${item.full_title}'\n${item.html_url}`
-          );
-        } else {
-          return issues.create(items);
-        }
-      })
+      .then(issues.create)
 
       // Output the result and set the output count.
       .then((results) => {

@@ -4,7 +4,7 @@ description: "Github RSS Action"
 
 inputs:
   noop:
-    description: "Run in no-operation mode, will do everything except creating new issues."
+    description: "Run in no-operation mode, will not touch the github API."
     required: false
     default: false
 
