@@ -17,7 +17,6 @@
 set -e
 [[ -n "${TRACE}" ]] && set -x
 
-
 # Run everything from the repository's root.
 REPO_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 cd "${REPO_DIR}"
