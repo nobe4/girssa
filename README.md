@@ -6,15 +6,30 @@
 | |__| | _| |_ | | \ \  ____) |____) |/ ____ \
  \_____||_____||_|  \_\|_____/|_____//_/    \_\
 
- Github        RSS                   Action
+ GitHub        RSS                   Action
 
 ```
 
 :warning: Still under development, here be dragons :dragon:
 
-> TODO do an intro
+[![check dist](https://github.com/nobe4/girssa/actions/workflows/check-dist.yml/badge.svg)](https://github.com/nobe4/girssa/actions/workflows/check-dist.yml)
+[![codeql](https://github.com/nobe4/girssa/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/nobe4/girssa/actions/workflows/codeql-analysis.yml)
+[![units-test](https://github.com/nobe4/girssa/actions/workflows/test.yml/badge.svg)](https://github.com/nobe4/girssa/actions/workflows/test.yml)
 
-## Usage
+# Girssa
+
+Girssa is a minimalist and easy to use RSS reader.
+It leverages GitHub in many way to create a very simple RSS reader.
+
+To use it: write a [_sources_](./sources.example.json) file and install the action in a repository.
+
+That's it :sparkles:
+
+Your new RSS items will be sent to the issues of the repository. You can then consult them freely.
+
+## Usage and configuration
+
+Girssa is meant to be run on an automated basis.
 
 ```yaml
 name: build rss feed
@@ -32,7 +47,9 @@ jobs:
       - uses: nobe4/girssa@<TODO current version>
 ```
 
-See [`action.yml`](./action.yml) for options.
+See [`action.yml`](./action.yml) for the action configuration.
+
+:warning: GitHub actions might not be free for you. Make sure to check [the billing doc](https://docs.github.com/en/actions/learn-github-actions/usage-limits-billing-and-administration) to not have any bad surprise :money-with-wings:.
 
 ## Local setup
 
