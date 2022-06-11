@@ -6,7 +6,7 @@ const github = require("./src/github.js");
 
 async function run() {
   try {
-    const noop = core.getInput("noop", { required: true });
+    const noop = core.getInput("noop", { required: true }) === "true";
     const sources_path = core.getInput("sources", { required: true });
     const token = core.getInput("token", { required: true });
     const full_repository = core.getInput("repository", { required: true });
