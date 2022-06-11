@@ -1,21 +1,9 @@
 // Handle interactions with github issues
 
 const core = require("@actions/core");
-const github = require("@actions/github");
+const github = require("./github.js");
 
 const self = {
-  client: undefined,
-  owner: undefined,
-  repo: undefined,
-  noop: false,
-
-  setup(token, owner, repo, noop) {
-    self.client = github.getOctokit(token);
-    self.owner = owner;
-    self.repo = repo;
-    self.noop = noop;
-  },
-
   // list lists all the issues in the repository.
   //
   // @return {Promise} - Resolve with the list of fetched issues.
@@ -23,18 +11,18 @@ const self = {
   list() {
     return new Promise((resolve, reject) => {
       // Bypass if noop is set
-      if (self.noop) {
-        core.notice(`[NOOP] List all the issues in ${self.owner}/${self.repo}`);
+      if (github.noop) {
+        core.notice(`[NOOP] List all the issues in ${github.owner}/${github.repo}`);
         resolve([]);
         return;
       }
 
-      core.debug(`List all the issues in ${self.owner}/${self.repo}`);
+      core.debug(`List all the issues in ${github.owner}/${github.repo}`);
 
-      self.client.rest.issues
+      github.client.rest.issues
         .listForRepo({
-          owner: self.owner,
-          repo: self.repo,
+          owner: github.owner,
+          repo: github.repo,
           state: "all",
         })
 
@@ -87,18 +75,18 @@ const self = {
       const full_title = `${item.title} - ${item.id}`;
 
       // Bypass if noop is set
-      if (self.noop) {
+      if (github.noop) {
         const message = `[NOOP] Created issue for: '${full_title}'`;
         core.notice(message);
         resolve(message);
         return;
       }
 
-      self.client.rest.issues
+      github.client.rest.issues
 
         .create({
-          owner: self.owner,
-          repo: self.repo,
+          owner: github.owner,
+          repo: github.repo,
           title: full_title,
           body: `${item.link}\n\n${item.content}\n\n${item.published}`,
         })
