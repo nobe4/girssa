@@ -35,7 +35,10 @@ const self = {
           core.debug(`Received from API: ${JSON.stringify(data)}`);
           return data.content;
         })
-        .then(atob)
+
+        // Using atob fails in nodejs 16.X with [InvalidCharacterError]: Invalid character
+        .then((encoded) => Buffer.from(encoded, "base64").toString("utf-8"))
+
         .then(JSON.parse)
 
         .then(resolve)
