@@ -2,6 +2,7 @@ const core = require("@actions/core");
 
 const sources = require("./src/sources.js");
 const issues = require("./src/issues.js");
+const github = require("./src/github.js");
 
 async function run() {
   try {
@@ -12,7 +13,7 @@ async function run() {
 
     const [owner, repo] = full_repository.split("/");
 
-    issues.setup(token, owner, repo, noop);
+    github.setup(token, owner, repo, noop);
 
     sources
       .read(sources_path)

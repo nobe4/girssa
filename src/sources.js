@@ -1,8 +1,8 @@
 // Handle interactions with the sources file.
 
 const core = require("@actions/core");
-const fs = require("fs");
 const rss = require("./rss.js");
+const github = require("./github.js");
 
 const self = {
   // read reads the source file from its path.
@@ -12,20 +12,28 @@ const self = {
   // @return {object} - Parsed content of the json file.
   read(path) {
     return new Promise(function (resolve, reject) {
-      core.debug(`Reading source file ${path}`);
+      // Bypass if noop is set
+      if (github.noop) {
+        core.notice(`[NOOP] Reading source file ${github.owner}/${github.repo}/${path}`);
+        resolve([]);
+        return;
+      }
 
-      fs.readFile(path, "utf8", (err, content) => {
-        if (err) {
-          reject(err);
-          return;
-        }
+      core.debug(`Reading source file ${github.owner}/${github.repo}/${path}`);
 
-        try {
-          resolve(JSON.parse(content));
-        } catch (e) {
-          reject(e);
-        }
-      });
+      github.client.rest.repos.getContent({
+          owner: github.owner,
+          repo: github.repo,
+          path: path,
+        })
+
+      // Extract content and parse JSON
+      .then(({data}) => data.content)
+      .then(atob)
+      .then(JSON.parse)
+
+      .then(resolve)
+      .catch(reject)
     });
   },
 
