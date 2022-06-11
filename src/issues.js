@@ -29,7 +29,11 @@ const self = {
         })
 
         .then(({ data }) => resolve(data))
-        .catch(reject);
+        .catch((e) => {
+          core.warning(`issues.list error: ${e}`);
+          core.warning(e.stack);
+          reject(e);
+        });
     });
   },
 

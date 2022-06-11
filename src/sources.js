@@ -36,7 +36,12 @@ const self = {
         .then(JSON.parse)
 
         .then(resolve)
-        .catch(reject);
+
+        .catch((e) => {
+          core.warning(`sources.read error: ${e}`);
+          core.warning(e.stack);
+          reject(e);
+        });
     });
   },
 
@@ -88,7 +93,12 @@ const self = {
         .then(self.filter_results)
 
         .then(resolve)
-        .catch(reject);
+
+        .catch((e) => {
+          core.warning(`sources.process error: ${e}`);
+          core.warning(e.stack);
+          reject(e);
+        });
     });
   },
 };
