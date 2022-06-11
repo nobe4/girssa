@@ -32,8 +32,8 @@ const self = {
 
         // Extract content and parse JSON
         .then(({ data }) => {
-          core.debug(`Received from API: ${data}`)
-          return data.content
+          core.debug(`Received from API: ${data}`);
+          return data.content;
         })
         .then(atob)
         .then(JSON.parse)
