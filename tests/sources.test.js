@@ -1,35 +1,39 @@
-const fs = require("fs");
 const rss = require("../src/rss.js");
-
+const github = require("../src/github.js");
 const sources = require("../src/sources.js");
 
+beforeEach(() => {
+  github.noop = false;
+  github.owner = "owner";
+  github.repo = "repo";
+});
+
+afterEach(() => jest.clearAllMocks());
+
 describe("read", () => {
+  it("doesn't read if nooped", () => {
+    github.noop = true;
+    expect(sources.read("path")).resolves.toHaveLength(0);
+  });
+
   it("reads and parse the content correctly", () => {
-    jest.spyOn(fs, "readFile").mockImplementationOnce((path, encoding, cb) => {
-      expect(path).toStrictEqual("path");
-      expect(encoding).toStrictEqual("utf8");
-      cb(undefined, `{"json": true}`);
+    const content_spy = jest.fn();
+    github.client = { rest: { repos: { getContent: content_spy } } };
+    content_spy.mockResolvedValueOnce({
+      data: {
+        content: btoa('{ "json": true }'),
+      },
     });
 
     expect(sources.read("path")).resolves.toStrictEqual({ json: true });
   });
 
-  it("cannot read", () => {
-    jest.spyOn(fs, "readFile").mockImplementationOnce((path, encoding, cb) => {
-      cb("error", undefined);
-    });
+  it("fails to read", () => {
+    const content_spy = jest.fn();
+    github.client = { rest: { repos: { getContent: content_spy } } };
+    content_spy.mockRejectedValueOnce("error");
 
-    expect(sources.read("path")).rejects.toBe("error");
-  });
-
-  it("reads correctly and fail parsing the content", () => {
-    jest.spyOn(fs, "readFile").mockImplementationOnce((path, encoding, cb) => {
-      cb(undefined, `not json`);
-    });
-
-    sources.read("path").catch((e) => {
-      expect(e instanceof SyntaxError).toBeTruthy();
-    });
+    expect(sources.read("path")).rejects.toStrictEqual("error");
   });
 });
 

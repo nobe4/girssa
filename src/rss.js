@@ -34,7 +34,11 @@ const self = {
           });
         })
 
-        .on("error", reject)
+        .on("error", (e) => {
+          core.warning(`rss.fetch error: ${e}`);
+          core.warning(e.stack);
+          reject(e);
+        })
 
         // This is what actually sends the request.
         .end();

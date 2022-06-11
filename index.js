@@ -2,17 +2,22 @@ const core = require("@actions/core");
 
 const sources = require("./src/sources.js");
 const issues = require("./src/issues.js");
+const github = require("./src/github.js");
 
 async function run() {
   try {
-    const noop = core.getInput("noop", { required: true });
+    const noop = core.getInput("noop", { required: true }) === "true";
     const sources_path = core.getInput("sources", { required: true });
     const token = core.getInput("token", { required: true });
     const full_repository = core.getInput("repository", { required: true });
 
+    core.notice(
+      `Running with noop: ${noop}, sources: ${sources_path}, repo: ${full_repository}`
+    );
+
     const [owner, repo] = full_repository.split("/");
 
-    issues.setup(token, owner, repo, noop);
+    github.setup(token, owner, repo, noop);
 
     sources
       .read(sources_path)

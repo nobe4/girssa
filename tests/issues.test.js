@@ -1,37 +1,23 @@
-const github = require("@actions/github");
-
+const github = require("../src/github.js");
 const issues = require("../src/issues.js");
 
 beforeEach(() => {
-  issues.noop = false;
-  issues.owner = "owner";
-  issues.repo = "repo";
+  github.noop = false;
+  github.owner = "owner";
+  github.repo = "repo";
 });
 
 afterEach(() => jest.clearAllMocks());
 
-describe("setup", () => {
-  it("setup the client, owner and repo correctly", () => {
-    jest.spyOn(github, "getOctokit").mockReturnValueOnce("client");
-
-    issues.setup("token", "owner", "repo", true);
-
-    expect(issues.client).toBe("client");
-    expect(issues.owner).toBe("owner");
-    expect(issues.repo).toBe("repo");
-    expect(issues.noop).toBeTruthy();
-  });
-});
-
 describe("list", () => {
   it("doesn't list if nooped", () => {
-    issues.noop = true;
+    github.noop = true;
     expect(issues.list()).resolves.toHaveLength(0);
   });
 
   it("lists all the repo", () => {
     const list_spy = jest.fn();
-    issues.client = { rest: { issues: { listForRepo: list_spy } } };
+    github.client = { rest: { issues: { listForRepo: list_spy } } };
 
     list_spy.mockResolvedValueOnce({ data: "OK" });
     expect(issues.list()).resolves.toBe("OK");
@@ -65,7 +51,7 @@ describe("create_one", () => {
   };
 
   it("doesn't create if nooped", () => {
-    issues.noop = true;
+    github.noop = true;
 
     expect(issues.create_one(item)).resolves.toStrictEqual(
       "[NOOP] Created issue for: 'title - id'"
@@ -74,7 +60,7 @@ describe("create_one", () => {
 
   it("create an issue from the item correctly", () => {
     const create_spy = jest.fn();
-    issues.client = { rest: { issues: { create: create_spy } } };
+    github.client = { rest: { issues: { create: create_spy } } };
 
     create_spy.mockResolvedValueOnce({
       data: {
@@ -87,8 +73,8 @@ describe("create_one", () => {
     );
 
     expect(create_spy).toHaveBeenCalledWith({
-      owner: issues.owner,
-      repo: issues.repo,
+      owner: github.owner,
+      repo: github.repo,
       title: "title - id",
       body: "link\n\ncontent\n\npublished",
     });
@@ -96,7 +82,7 @@ describe("create_one", () => {
 
   it("fails to create an issue", () => {
     const create_spy = jest.fn();
-    issues.client = { rest: { issues: { create: create_spy } } };
+    github.client = { rest: { issues: { create: create_spy } } };
 
     create_spy.mockRejectedValueOnce({
       response: {
@@ -112,8 +98,8 @@ describe("create_one", () => {
     );
 
     expect(create_spy).toHaveBeenCalledWith({
-      owner: issues.owner,
-      repo: issues.repo,
+      owner: github.owner,
+      repo: github.repo,
       title: "title - id",
       body: "link\n\ncontent\n\npublished",
     });

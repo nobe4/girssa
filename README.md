@@ -17,7 +17,19 @@
 ## Usage
 
 ```yaml
-uses: nobe4/girssa@latest
+name: build rss feed
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every day at midnight UTC
+    - cron: "0 0 * * *"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: nobe4/girssa@<TODO current version>
 ```
 
 See [`action.yml`](./action.yml) for options.
