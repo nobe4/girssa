@@ -1,18 +1,43 @@
-const core = require('@actions/core');
-const wait = require('./wait');
+const core = require("@actions/core");
 
+const sources = require("./src/sources.js");
+const issues = require("./src/issues.js");
 
-// most @actions toolkit packages have async methods
 async function run() {
   try {
-    const ms = core.getInput('milliseconds');
-    core.info(`Waiting ${ms} milliseconds ...`);
+    const noop = core.getInput("noop", { required: true });
+    const sources_path = core.getInput("sources", { required: true });
+    const token = core.getInput("token", { required: true });
+    const full_repository = core.getInput("repository", { required: true });
 
-    core.debug((new Date()).toTimeString()); // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-    await wait(parseInt(ms));
-    core.info((new Date()).toTimeString());
+    const [owner, repo] = full_repository.split("/");
 
-    core.setOutput('time', new Date().toTimeString());
+    issues.setup(token, owner, repo, noop);
+
+    sources
+      .read(sources_path)
+
+      // Fetch the items from the sources
+      .then(sources.process)
+
+      // Flatten the lists of item lists.
+      .then((items) => [].concat(...items))
+
+      // Filter the new items to put in issues.
+      .then(issues.select)
+
+      // Create the new issues.
+      .then(issues.create)
+
+      // Output the result and set the output count.
+      .then((results) => {
+        core.setOutput("count", results.length);
+        return results.join("\n");
+      })
+
+      // Output based on status
+      .then(core.notice)
+      .catch(core.error);
   } catch (error) {
     core.setFailed(error.message);
   }

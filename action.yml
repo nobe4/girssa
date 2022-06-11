@@ -1,13 +1,32 @@
-name: 'Wait'
-description: 'Wait a designated number of milliseconds'
+name: "girssa"
+author: "nobe4"
+description: "Github RSS Action"
+
 inputs:
-  milliseconds:  # id of input
-    description: 'number of milliseconds to wait'
-    required: true
-    default: '1000'
+  noop:
+    description: "Run in no-operation mode, will not touch the github API."
+    required: false
+    default: false
+
+  sources:
+    description: "List of the RSS feeds to use, in JSON."
+    required: false
+    default: "sources.json"
+
+  token:
+    description: The GitHub token used to create an authenticated client.
+    required: false
+    default: ${{ github.token }}
+
+  repository:
+    description: The GitHub repository to store issues in, must be of format <owner>/<name>.
+    required: false
+    default: ${{ github.repository }}
+
 outputs:
-  time: # output will be available to future steps
-    description: 'The current time after waiting'
+  count:
+    description: "Count of processed items"
+
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: "node16"
+  main: "dist/index.js"

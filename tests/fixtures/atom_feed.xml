@@ -1,0 +1,60 @@
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/" xmlns="http://www.w3.org/2005/Atom">
+	<link rel="self" href="http://www.youtube.com/feeds/videos.xml?channel_id=UC7c3Kb6jYCRj4JOHHZTxKsQ"/>
+	<id>yt:channel:UC7c3Kb6jYCRj4JOHHZTxKsQ</id>
+	<yt:channelId>UC7c3Kb6jYCRj4JOHHZTxKsQ</yt:channelId>
+	<title>GitHub</title>
+	<link rel="alternate" href="https://www.youtube.com/channel/UC7c3Kb6jYCRj4JOHHZTxKsQ"/>
+	<author>
+		<name>GitHub</name>
+		<uri>https://www.youtube.com/channel/UC7c3Kb6jYCRj4JOHHZTxKsQ</uri>
+	</author>
+	<published>2010-07-28T18:50:31+00:00</published>
+
+	<entry>
+		<id>yt:video:FdkSTzp_NTY</id>
+		<yt:videoId>FdkSTzp_NTY</yt:videoId>
+		<yt:channelId>UC7c3Kb6jYCRj4JOHHZTxKsQ</yt:channelId>
+		<title>The Download: Maintainer Month, .NET MAUI Goes GA, Flight Simulator: Top Gun, and more</title>
+		<link rel="alternate" href="https://www.youtube.com/watch?v=FdkSTzp_NTY"/>
+		<author>
+			<name>GitHub</name>
+			<uri>https://www.youtube.com/channel/UC7c3Kb6jYCRj4JOHHZTxKsQ</uri>
+		</author>
+		<published>2022-06-03T15:10:23+00:00</published>
+		<updated>2022-06-04T06:47:25+00:00</updated>
+		<media:group>
+			<media:title>The Download: Maintainer Month, .NET MAUI Goes GA, Flight Simulator: Top Gun, and more</media:title>
+			<media:content url="https://www.youtube.com/v/FdkSTzp_NTY?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+			<media:thumbnail url="https://i3.ytimg.com/vi/FdkSTzp_NTY/hqdefault.jpg" width="480" height="360"/>
+			<media:description>On this episode of The Download, Christina is on location at RenderATL, but is still here to offer the latest developer news, including: 0:00 Intro 0:59 Maintainer Month https://github.blog/2022-06-01-welcome-to-maintainer-month/, https://maintainermonth.github.com https://maintainermonth.github.com and 1Password Podcast https://randombutmemorable.simplecast.com/episodes/open-source-lost-quest 1:53 Microsoft Build Updates https://news.microsoft.com/build-2022-book-of-news/ 2:10 GitHub Copilot GA and Free for Students/OSS https://techcrunch.com/2022/05/24/copilot-githubs-ai-powered-coding-tool-will-become-generally-available-this-summer/ 2:50 .NET MAUI Goes GA https://devblogs.microsoft.com/dotnet/introducing-dotnet-maui-one-codebase-many-platforms/, James's video course https://www.youtube.com/watch?v=DuNLR_NJv8U and GitHub repo https://github.com/dotnet-presentations/dotnet-maui-workshop 3:54 Azure Static Web Apps CLI GA https://dev.to/azure/azure-static-web-apps-cli-is-now-ga-global-access-1714 and GitHub repo https://github.com/Azure/static-web-apps-cli 4:30 VideoGrep https://github.com/antiboredom/videogrep and tutorial https://lav.io/notes/videogrep-tutorial/ 5:43 **Christina's Pick of the Week**: Flight Simulator Top Gun Expansion https://www.flightsimulator.com/become-a-top-gun-pilot-in-free-expansion-available-today/ Presented by: @Christina Warren Shot by: @Helen Hou-Sandi As always, feel free to leave us a comment below and don't forget to subscribe: http://bit.ly/subgithub Thanks! Connect with us. Facebook: http://fb.com/github Twitter: http://twitter.com/github LinkedIn: http://linkedin.com/company/github About GitHub GitHub is the best place to share code with friends, co-workers, classmates, and complete strangers. Millions of people use GitHub to build amazing things together. For more info, go to http://github.com</media:description>
+			<media:community>
+				<media:starRating count="91" average="5.00" min="1" max="5"/>
+				<media:statistics views="3569"/>
+			</media:community>
+		</media:group>
+	</entry>
+
+	<entry>
+		<id>yt:video:nlHe2dfl6dI</id>
+		<yt:videoId>nlHe2dfl6dI</yt:videoId>
+		<yt:channelId>UC7c3Kb6jYCRj4JOHHZTxKsQ</yt:channelId>
+		<title>Open Source Brasil Maintainer Event</title>
+		<link rel="alternate" href="https://www.youtube.com/watch?v=nlHe2dfl6dI"/>
+		<author>
+			<name>GitHub</name>
+			<uri>https://www.youtube.com/channel/UC7c3Kb6jYCRj4JOHHZTxKsQ</uri>
+		</author>
+		<published>2022-06-02T21:57:55+00:00</published>
+		<updated>2022-06-04T23:25:39+00:00</updated>
+		<media:group>
+			<media:title>Open Source Brasil Maintainer Event</media:title>
+			<media:content url="https://www.youtube.com/v/nlHe2dfl6dI?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+			<media:thumbnail url="https://i3.ytimg.com/vi/nlHe2dfl6dI/hqdefault.jpg" width="480" height="360"/>
+			<media:description>Presented by: As always, feel free to leave us a comment below and don't forget to subscribe: http://bit.ly/subgithub Thanks! Connect with us. Facebook: http://fb.com/github Twitter: http://twitter.com/github LinkedIn: http://linkedin.com/company/github About GitHub GitHub is the best place to share code with friends, co-workers, classmates, and complete strangers. Millions of people use GitHub to build amazing things together. For more info, go to http://github.com</media:description>
+			<media:community>
+				<media:starRating count="49" average="5.00" min="1" max="5"/>
+				<media:statistics views="528"/>
+			</media:community>
+		</media:group>
+	</entry>
+</feed>
