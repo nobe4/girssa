@@ -14,26 +14,29 @@ const self = {
     return new Promise(function (resolve, reject) {
       // Bypass if noop is set
       if (github.noop) {
-        core.notice(`[NOOP] Reading source file ${github.owner}/${github.repo}/${path}`);
+        core.notice(
+          `[NOOP] Reading source file ${github.owner}/${github.repo}/${path}`
+        );
         resolve([]);
         return;
       }
 
       core.debug(`Reading source file ${github.owner}/${github.repo}/${path}`);
 
-      github.client.rest.repos.getContent({
+      github.client.rest.repos
+        .getContent({
           owner: github.owner,
           repo: github.repo,
           path: path,
         })
 
-      // Extract content and parse JSON
-      .then(({data}) => data.content)
-      .then(atob)
-      .then(JSON.parse)
+        // Extract content and parse JSON
+        .then(({ data }) => data.content)
+        .then(atob)
+        .then(JSON.parse)
 
-      .then(resolve)
-      .catch(reject)
+        .then(resolve)
+        .catch(reject);
     });
   },
 

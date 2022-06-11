@@ -13,5 +13,3 @@ describe("setup", () => {
     expect(github.noop).toBeTruthy();
   });
 });
-
-

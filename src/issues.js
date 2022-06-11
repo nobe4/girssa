@@ -12,7 +12,9 @@ const self = {
     return new Promise((resolve, reject) => {
       // Bypass if noop is set
       if (github.noop) {
-        core.notice(`[NOOP] List all the issues in ${github.owner}/${github.repo}`);
+        core.notice(
+          `[NOOP] List all the issues in ${github.owner}/${github.repo}`
+        );
         resolve([]);
         return;
       }

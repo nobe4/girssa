@@ -14,7 +14,7 @@ describe("read", () => {
   it("doesn't read if nooped", () => {
     github.noop = true;
     expect(sources.read("path")).resolves.toHaveLength(0);
-  })
+  });
 
   it("reads and parse the content correctly", () => {
     const content_spy = jest.fn();
