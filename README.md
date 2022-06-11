@@ -48,18 +48,10 @@ npm run build
 
 ## Release
 
-> TODO
+Use the [`release.sh`](./scripts/release.sh) to create a new tag and open a new draft release.
 
-Users shouldn't consume the action from master since that would be latest code and actions can break compatibility between major versions.
+See the file for configuration.
 
-Checkin to the v1 release branch
-
-```bash
-git checkout -b v1
-git commit -a -m "v1 release"
-git push origin v1
+```shell
+./scripts/release.sh
 ```
-
-Your action is now published! :rocket:
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
