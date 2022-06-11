@@ -11,7 +11,9 @@ async function run() {
     const token = core.getInput("token", { required: true });
     const full_repository = core.getInput("repository", { required: true });
 
-    core.notice(`Running with noop: ${noop}, sources: ${sources_path}, repo: ${full_repository}")
+    core.notice(
+      `Running with noop: ${noop}, sources: ${sources_path}, repo: ${full_repository}`
+    );
 
     const [owner, repo] = full_repository.split("/");
 
