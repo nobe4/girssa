@@ -6,15 +6,37 @@
 | |__| | _| |_ | | \ \  ____) |____) |/ ____ \
  \_____||_____||_|  \_\|_____/|_____//_/    \_\
 
- Github        RSS                   Action
+ GitHub        RSS                   Action
 
 ```
 
 :warning: Still under development, here be dragons :dragon:
 
-> TODO do an intro
+[![check dist](https://github.com/nobe4/girssa/actions/workflows/check-dist.yml/badge.svg)](https://github.com/nobe4/girssa/actions/workflows/check-dist.yml)
+[![codeql](https://github.com/nobe4/girssa/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/nobe4/girssa/actions/workflows/codeql-analysis.yml)
+[![units-test](https://github.com/nobe4/girssa/actions/workflows/test.yml/badge.svg)](https://github.com/nobe4/girssa/actions/workflows/test.yml)
 
-## Usage
+# Girssa
+
+Girssa is a minimalist and easy to use [RSS](https://en.wikipedia.org/wiki/RSS) reader.
+It leverages GitHub in two ways: *actions* for automation and *issues* for storage.
+
+To use it: write a [_sources_](./sources.example.json) file and install the action in a repository.
+
+Done :sparkles:
+
+Girssa sends the RSS items to the repository's issues. You can then consult them freely.
+
+## How does it work?
+
+0. The source file is read (`sources.read`).
+0. For each source, the feed is fetched (`rss.fetch`) and parsed (`rss.parse`).
+0. New items are selected (`issues.select`).
+0. For each new item, an issues is created (`issues.create`).
+
+## Usage and configuration
+
+You can run Girssa on an automated basis.
 
 ```yaml
 name: build rss feed
@@ -29,41 +51,46 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - uses: nobe4/girssa@<TODO current version>
+      - uses: nobe4/girssa@<current version>
 ```
 
-See [`action.yml`](./action.yml) for options.
+:warning: GitHub actions can cost you. Make sure to check [the billing doc](https://docs.github.com/en/actions/learn-github-actions/usage-limits-billing-and-administration) to not have any bad surprise :money_with_wings:.
 
-## Local setup
+### `sources.json`
 
-```shell
-npm install
-npm run test
-npm run link
-npm run fix
+The sources file expect an array of objects with at least the following keys:
+- `name`: The name of the feed.
+- `rss_url`: The RSS URL to fetch items from.
+
+See [`sources.example.json`](./sources.example.json) for an example.
+
+:information_source: Known limitation: You need to get the RSS URL yourself :grimacing:.
+I'm planning on writing documentation on how to do this, maybe even automate this process in the future.
+See https://github.com/nobe4/girssa/issues/28
+
+### Configuration
+
+You can configure Girssa with some options, see [`action.yml`](./action.yml) for details.
+
+Example:
+
+```yaml
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: nobe4/girssa@<current version>
+        with:
+          repository: <another/repository>
+          token: <token with access to another/repository>
+          noop: true
 ```
 
-## Build
+## Contributing
 
-GitHub Actions will run the entry point from the [`action.yml`](./action.yml). Packaging assembles the code into one file that can be checked in to Git, enabling fast and reliable execution and preventing the need to check in `node_modules`.
+See [the contributing guide](./CONTRIBUTING.mg)
 
-Actions are run from GitHub repos. Packaging the action will create a packaged action in the [`dist`](./dist) folder.
+## License
 
-```shell
-npm run build
-```
+See [LICENSE](./LICENSE)
 
-**Notes**:
-
-- We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-- `NODE_OPTIONS=--no-experimental-fetch` is needed to minify. See https://github.com/parcel-bundler/parcel/issues/8005#issuecomment-1120149358
-
-## Release
-
-Use the [`release.sh`](./scripts/release.sh) to create a new tag and open a new draft release.
-
-See the file for configuration.
-
-```shell
-./scripts/release.sh
-```

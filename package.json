@@ -1,7 +1,7 @@
 {
-  "name": "javascript-action",
-  "version": "1.0.0",
-  "description": "JavaScript Action Template",
+  "name": "girssa",
+  "version": "0.0.2",
+  "description": "GitHub RSS Action",
   "main": "index.js",
   "scripts": {
     "fix": "prettier --ignore-path .eslintignore --write .",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/javascript-action.git"
+    "url": "git+https://github.com/nobe4/girssa.git"
   },
   "keywords": [
     "GitHub",
@@ -22,9 +22,9 @@
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/actions/javascript-action/issues"
+    "url": "https://github.com/nobe4/girssa/issues"
   },
-  "homepage": "https://github.com/actions/javascript-action#readme",
+  "homepage": "https://github.com/nobe4/girssa#readme",
   "dependencies": {
     "@actions/core": "^1.2.5",
     "@actions/github": "^5.0.3",
