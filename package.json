@@ -9,7 +9,7 @@
     "build": "NODE_OPTIONS=--no-experimental-fetch npx ncc --debug build --minify --out dist --source-map --license licenses.txt index.js ",
     "test": "npx jest",
     "coverage": "npx jest --coverage",
-    "all": "npm run fix && npm run lint && npm run test && npm run build"
+    "all": "npm run fix && npm run lint && npm run coverage && npm run build"
   },
   "repository": {
     "type": "git",
