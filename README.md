@@ -15,6 +15,7 @@
 [![check dist](https://github.com/nobe4/girssa/actions/workflows/check-dist.yml/badge.svg)](https://github.com/nobe4/girssa/actions/workflows/check-dist.yml)
 [![codeql](https://github.com/nobe4/girssa/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/nobe4/girssa/actions/workflows/codeql-analysis.yml)
 [![units-test](https://github.com/nobe4/girssa/actions/workflows/test.yml/badge.svg)](https://github.com/nobe4/girssa/actions/workflows/test.yml)
+[![coverage](https://github.com/nobe4/girssa/actions/workflows/coverage.yml/badge.svg)](https://github.com/nobe4/girssa/actions/workflows/coverage.yml)
 
 # Girssa
 
