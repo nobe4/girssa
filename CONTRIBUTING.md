@@ -52,11 +52,11 @@ Actions are run from GitHub repositories. Packaging the action will create a pac
 npm run build
 ```
 
-**Note**: `NODE_OPTIONS=--no-experimental-fetch` is needed to minify. See https://github.com/parcel-bundler/parcel/issues/8005#issuecomment-1120149358
+:information_source: `NODE_OPTIONS=--no-experimental-fetch` is needed to minify. See https://github.com/parcel-bundler/parcel/issues/8005#issuecomment-1120149358
 
 ## Release
 
-:notice: Only contributors with write-access will be able to do this step.
+:information_source: Only contributors with write-access will be able to do this step.
 
 Use the [`release.sh`](./scripts/release.sh) to create a new tag and open a new draft release.
 
