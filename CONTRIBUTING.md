@@ -6,20 +6,17 @@ We release contributions to this under the [project's open source license](LICEN
 
 ## Submitting a pull request
 
-0. [Fork](fork] and clone the repository
+0. [Fork](fork) and clone the repository.
 0. Follow the local development setup.
-0. Make sure the tests pass on your machine: `npm test`
-0. Create a new branch: `git checkout -b my-branch-name`
+0. Make sure the tests pass on your machine: `npm test`.
+0. Create a new branch: `git checkout -b my-branch-name`.
 0. Make your change, add tests, and make sure the tests still pass.
-0. Push to your fork and [submit a pull request][pr]
+0. Push to your fork and [submit a pull request](pr).
 0. Wait for your pull request to be reviewed and merged.
 
 
 ## Local setup
 
-GitHub
-npM
-Nodejs
 You should run Nodejs 16 to match the action's version.
 
 Using [`nodeenv`](https://github.com/nodenv/nodenv) is recommended.
