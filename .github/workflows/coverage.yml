@@ -1,0 +1,16 @@
+name: "coverage"
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - "releases/*"
+
+jobs:
+  units:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm clean-install
+      - run: npm run coverage
