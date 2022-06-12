@@ -19,7 +19,7 @@
 # Girssa
 
 Girssa is a minimalist and easy to use [RSS](https://en.wikipedia.org/wiki/RSS) reader.
-It leverages GitHub in many way to create a simple RSS reader.
+It leverages GitHub in two ways: *actions* for automation and *issues* for storage.
 
 To use it: write a [_sources_](./sources.example.json) file and install the action in a repository.
 
@@ -55,6 +55,18 @@ jobs:
 ```
 
 :warning: GitHub actions can cost you. Make sure to check [the billing doc](https://docs.github.com/en/actions/learn-github-actions/usage-limits-billing-and-administration) to not have any bad surprise :money_with_wings:.
+
+### `sources.json`
+
+The sources file expect an array of objects with at least the following keys:
+- `name`: The name of the feed.
+- `rss_url`: The RSS URL to fetch items from.
+
+See [`sources.example.json`](./sources.example.json) for an example.
+
+:information_source: Known limitation: You need to get the RSS URL yourself :grimacing:.
+I'm planning on writing documentation on how to do this, maybe even automate this process in the future.
+See https://github.com/nobe4/girssa/issues/28
 
 ### Configuration
 
