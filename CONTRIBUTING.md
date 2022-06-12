@@ -4,6 +4,10 @@ Hi :wave: thanks for stopping by.
 
 We release contributions to this under the [project's open source license](LICENSE.md).
 
+## Tracking work
+
+We're currently tracking issues/ideas in [issues](issues).
+
 ## Submitting a pull request
 
 0. [Fork](fork) and clone the repository.
