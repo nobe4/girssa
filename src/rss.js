@@ -17,31 +17,30 @@ const self = {
     return new Promise((resolve, reject) => {
       core.debug(`Fetching ${url}`);
 
-      https
-        .get(url, (res) => {
-          // We're only expecting a 200, tho any 2XX would work.
-          if (res.statusCode !== 200) {
-            return reject(`Request Failed.\nStatus Code: ${res.statusCode}`);
-          }
+      const req = https.get(url, (res) => {
+        // We're only expecting a 200, tho any 2XX would work.
+        if (res.statusCode !== 200) {
+          return reject(`Request Failed.\nStatus Code: ${res.statusCode}`);
+        }
 
-          // Parse the body
-          let body = "";
-          res.setEncoding("utf8");
-          res.on("data", (c) => (body += c));
+        // Parse the body
+        let body = "";
+        res.setEncoding("utf8");
+        res.on("data", (c) => (body += c));
 
-          res.on("end", () => {
-            resolve(body);
-          });
-        })
+        res.on("end", () => {
+          resolve(body);
+        });
+      });
 
-        .on("error", (e) => {
-          core.warning(`rss.fetch error: ${e}`);
-          core.warning(e.stack);
-          reject(e);
-        })
+      req.on("error", (e) => {
+        core.warning(`rss.fetch error: ${JSON.stringify(e)}`);
+        core.warning(e.stack);
+        reject(e);
+      });
 
-        // This is what actually sends the request.
-        .end();
+      // This is what actually sends the request.
+      req.end();
     });
   },
 

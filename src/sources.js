@@ -11,7 +11,7 @@ const self = {
   //
   // @return {object} - Parsed content of the json file.
   read(path) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
       // Bypass if noop is set
       if (github.noop) {
         core.notice(
@@ -86,7 +86,7 @@ const self = {
   // @return {Promise} - Resolve when all the mapped sources' promises have resolved.
   //                     Reject with any error that occured.
   process(sources) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
       Promise.allSettled(
         sources.map((source) => {
           core.debug(`Processing ${source.name}`);

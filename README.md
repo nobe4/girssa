@@ -20,7 +20,7 @@
 # Girssa
 
 Girssa is a minimalist and easy to use [RSS](https://en.wikipedia.org/wiki/RSS) reader.
-It leverages GitHub in two ways: *actions* for automation and *issues* for storage.
+It leverages GitHub in two ways: _actions_ for automation and _issues_ for storage.
 
 To use it: write a [_sources_](./sources.example.json) file and install the action in a repository.
 
@@ -31,9 +31,9 @@ Girssa sends the RSS items to the repository's issues. You can then consult them
 ## How does it work?
 
 0. The source file is read (`sources.read`).
-0. For each source, the feed is fetched (`rss.fetch`) and parsed (`rss.parse`).
-0. New items are selected (`issues.select`).
-0. For each new item, an issues is created (`issues.create`).
+1. For each source, the feed is fetched (`rss.fetch`) and parsed (`rss.parse`).
+2. New items are selected (`issues.select`).
+3. For each new item, an issues is created (`issues.create`).
 
 ## Usage and configuration
 
@@ -60,6 +60,7 @@ jobs:
 ### `sources.json`
 
 The sources file expect an array of objects with at least the following keys:
+
 - `name`: The name of the feed.
 - `rss_url`: The RSS URL to fetch items from.
 
@@ -94,4 +95,3 @@ See [the contributing guide](./CONTRIBUTING.mg)
 ## License
 
 See [LICENSE](./LICENSE)
-

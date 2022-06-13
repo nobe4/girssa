@@ -22,6 +22,7 @@ const self = {
       core.debug(`List all the issues in ${github.owner}/${github.repo}`);
 
       github.client.rest.issues
+
         .listForRepo({
           owner: github.owner,
           repo: github.repo,
@@ -29,8 +30,9 @@ const self = {
         })
 
         .then(({ data }) => resolve(data))
+
         .catch((e) => {
-          core.warning(`issues.list error: ${e}`);
+          core.warning(`issues.list error: ${JSON.stringify(e)}`);
           core.warning(e.stack);
           reject(e);
         });
