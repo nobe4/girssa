@@ -13,7 +13,7 @@ afterEach(() => jest.clearAllMocks());
 describe("read", () => {
   it("doesn't read if nooped", () => {
     github.noop = true;
-    expect(sources.read("path")).resolves.toHaveLength(0);
+    expect(sources.read("path")).resolves.toBe(sources.noop_sources);
   });
 
   it("reads and parse the content correctly", () => {
@@ -52,7 +52,7 @@ describe("filter_results", () => {
 });
 
 describe("process", () => {
-  it("get and filter items correctly", async () => {
+  it("gets and filter items correctly", async () => {
     const rss_get_spy = jest.spyOn(rss, "get");
     rss_get_spy.mockResolvedValueOnce(["value1", "value2"]);
     rss_get_spy.mockRejectedValueOnce(["value3", "value4"]);
@@ -68,5 +68,17 @@ describe("process", () => {
       { status: "fulfilled", value: ["value1", "value2"] },
       { status: "rejected", reason: ["value3", "value4"] },
     ]);
+  });
+
+  it("rejects if there's an error", async () => {
+    const error = { stack: "the stack" };
+    const rss_get_spy = jest.spyOn(rss, "get");
+    rss_get_spy.mockResolvedValueOnce(["value1", "value2"]);
+
+    jest.spyOn(sources, "filter_results").mockImplementationOnce(() => {
+      throw error;
+    });
+
+    await expect(sources.process(["source1"])).rejects.toStrictEqual(error);
   });
 });

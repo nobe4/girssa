@@ -11,13 +11,12 @@ We're currently tracking issues/ideas in [issues](issues).
 ## Submitting a pull request
 
 0. [Fork](fork) and clone the repository.
-0. Follow the local development setup.
-0. Make sure the tests pass on your machine: `npm test`.
-0. Create a new branch: `git checkout -b my-branch-name`.
-0. Make your change, add tests, and make sure the tests still pass.
-0. Push to your fork and [submit a pull request](pr).
-0. Wait for your pull request to be reviewed and merged.
-
+1. Follow the local development setup.
+2. Make sure the tests pass on your machine: `npm test`.
+3. Create a new branch: `git checkout -b my-branch-name`.
+4. Make your change, add tests, and make sure the tests still pass.
+5. Push to your fork and [submit a pull request](pr).
+6. Wait for your pull request to be reviewed and merged.
 
 ## Local setup
 

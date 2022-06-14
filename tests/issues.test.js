@@ -15,12 +15,22 @@ describe("list", () => {
     expect(issues.list()).resolves.toHaveLength(0);
   });
 
-  it("lists all the repo", () => {
+  it("lists all the issues", () => {
     const list_spy = jest.fn();
     github.client = { rest: { issues: { listForRepo: list_spy } } };
 
     list_spy.mockResolvedValueOnce({ data: "OK" });
     expect(issues.list()).resolves.toBe("OK");
+  });
+
+  it("fails to list the issues", () => {
+    const list_spy = jest.fn();
+    github.client = { rest: { issues: { listForRepo: list_spy } } };
+
+    const error = { stack: "the stack" };
+    list_spy.mockRejectedValueOnce(error);
+
+    expect(issues.list()).rejects.toStrictEqual(error);
   });
 });
 

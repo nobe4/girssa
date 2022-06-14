@@ -14,8 +14,22 @@ describe("fetch", () => {
     await expect(rss.fetch("URL")).rejects.toMatch(/Request Failed/);
   });
 
-  it.skip("reject if the request has an error", async () => {
-    // TODO, how to test the `.on("error"` ?
+  it("reject if the request has an error", async () => {
+    const error = { stack: "the stack" };
+
+    https.get = function (url) {
+      expect(url).toBe("URL");
+
+      return {
+        on: jest.fn((event, cb) => {
+          expect(event).toBe("error");
+          cb(error);
+        }),
+        end: jest.fn(),
+      };
+    };
+
+    await expect(rss.fetch("URL")).rejects.toBe(error);
   });
 
   it("reads the body correctly", async () => {

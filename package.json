@@ -1,14 +1,15 @@
 {
   "name": "girssa",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "GitHub RSS Action",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "fix": "prettier --ignore-path .eslintignore --write .",
-    "lint": "eslint .",
-    "build": "NODE_OPTIONS=--no-experimental-fetch ncc --debug build --minify --out dist --source-map --license licenses.txt index.js ",
-    "test": "jest --coverage",
-    "all": "npm run fix && npm run lint && npm run test && npm run build"
+    "fix": "npx prettier --ignore-path .eslintignore --write .",
+    "lint": "npx eslint .",
+    "build": "NODE_OPTIONS=--no-experimental-fetch npx ncc --debug build --minify --out dist --source-map --license licenses.txt src/index.js ",
+    "test": "npx jest",
+    "coverage": "npx jest --coverage",
+    "all": "npm run fix && npm run lint && npm run coverage && npm run build"
   },
   "repository": {
     "type": "git",
@@ -37,5 +38,15 @@
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^28.1.0",
     "prettier": "2.6.2"
+  },
+  "jest": {
+    "coverageThreshold": {
+      "global": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 0
+      }
+    }
   }
 }
