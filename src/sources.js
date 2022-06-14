@@ -44,8 +44,8 @@ const self = {
         .then(resolve)
 
         .catch((e) => {
-          core.warning(`sources.read error: ${e}`);
-          core.warning(e.stack);
+          core.warning("sources.read error");
+          core.warning(e);
           reject(e);
         });
     });
@@ -101,8 +101,8 @@ const self = {
         .then(resolve)
 
         .catch((e) => {
-          core.warning(`sources.process error: ${e}`);
-          core.warning(e.stack);
+          core.warning("sources.process error");
+          core.warning(e);
           reject(e);
         });
     });

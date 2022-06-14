@@ -34,8 +34,8 @@ const self = {
       });
 
       req.on("error", (e) => {
-        core.warning(`rss.fetch error: ${JSON.stringify(e)}`);
-        core.warning(e.stack);
+        core.warning("rss.fetch error");
+        core.warning(e);
         reject(e);
       });
 

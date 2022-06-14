@@ -32,8 +32,8 @@ const self = {
         .then(({ data }) => resolve(data))
 
         .catch((e) => {
-          core.warning(`issues.list error: ${JSON.stringify(e)}`);
-          core.warning(e.stack);
+          core.warning("issues.list error");
+          core.warning(e);
           reject(e);
         });
     });
