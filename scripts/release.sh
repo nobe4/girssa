@@ -7,6 +7,7 @@
 # Requirements:
 # - `open`: Script to open an url in the default browser.
 # - `gh`: The github cli configured.
+# - `jq`: JSON querier to get the version.
 # - a new version in VERSION file.
 #
 # It can take a number of arguments as environment variables:
@@ -22,7 +23,7 @@ REPO_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 cd "${REPO_DIR}"
 
 # Fetch versions
-NEW_VERSION=$(cat VERSION)
+NEW_VERSION=$(jq -r '.version' package.json)
 git fetch --tags --force
 LAST_VERSION=$(git describe --tags "$(git rev-list --tags --max-count=1)")
 
