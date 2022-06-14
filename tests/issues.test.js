@@ -51,6 +51,26 @@ describe("select", () => {
   });
 });
 
+describe("format", () => {
+  it("formats the body correctly", () => {
+    const item = {
+      id: "id",
+      link: "link",
+      title: "title",
+      content: "content",
+      published: 1044072306000, // 01/02/2003, 04:05:06
+    };
+    const expected = `
+    | source (link) TODO | [original](link) | 01/02/2003, 04:05:06 | id |
+    | --- | --- | --- | --- |
+
+    content
+
+    `.replace(/(  )+/g, "");
+    expect(issues.format_body(item)).toStrictEqual(expected);
+  });
+});
+
 describe("create_one", () => {
   const item = {
     title: "title",
@@ -64,7 +84,7 @@ describe("create_one", () => {
     github.noop = true;
 
     expect(issues.create_one(item)).resolves.toStrictEqual(
-      "[NOOP] Created issue for: 'title - id'"
+      "[NOOP] Created issue for: 'title'"
     );
   });
 
@@ -78,15 +98,19 @@ describe("create_one", () => {
       },
     });
 
+    const format_body_spy = jest.spyOn(issues, "format_body");
+    format_body_spy.mockReturnValueOnce("body");
+
     expect(issues.create_one(item)).resolves.toBe(
-      "Created issue for: 'title - id'\nhtml_url"
+      "Created issue for: 'title'\nhtml_url"
     );
 
+    expect(format_body_spy).toHaveBeenCalledWith(item);
     expect(create_spy).toHaveBeenCalledWith({
       owner: github.owner,
       repo: github.repo,
-      title: "title - id",
-      body: "link\n\ncontent\n\npublished",
+      title: "title",
+      body: "body",
     });
   });
 
@@ -103,15 +127,19 @@ describe("create_one", () => {
       },
     });
 
+    const format_body_spy = jest.spyOn(issues, "format_body");
+    format_body_spy.mockReturnValueOnce("body");
+
     expect(issues.create_one(item)).resolves.toBe(
-      "Error creating issue for: 'title - id'\nstatus: message"
+      "Error creating issue for: 'title'\nstatus: message"
     );
 
+    expect(format_body_spy).toHaveBeenCalledWith(item);
     expect(create_spy).toHaveBeenCalledWith({
       owner: github.owner,
       repo: github.repo,
-      title: "title - id",
-      body: "link\n\ncontent\n\npublished",
+      title: "title",
+      body: "body",
     });
   });
 });

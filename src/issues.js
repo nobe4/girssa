@@ -65,6 +65,25 @@ const self = {
     });
   },
 
+  // format_body create a string to represent the issue body.
+  //
+  // @param {object} item - Item to create the issue with.
+  //                        See create_one for format.
+  //
+  // @return {string} - Formatted body
+  format_body(item) {
+    const formatted_published = (new Date(item.published)).toLocaleString('en-GB', { timeZone: 'UTC' })
+    const body = `
+    | source (link) TODO | [original](${item.link}) | ${formatted_published} | ${item.id} |
+    | --- | --- | --- | --- |
+
+    ${item.content}
+
+    `.replace(/(  )+/g, '');
+
+    return body;
+  },
+
   // create creates a new issue for the rss item.
   //
   // @param {object} item - Item to create the issue with.
@@ -80,11 +99,9 @@ const self = {
   //                     Reject with any error that occured.
   create_one(item) {
     return new Promise((resolve) => {
-      const full_title = `${item.title} - ${item.id}`;
-
       // Bypass if noop is set
       if (github.noop) {
-        const message = `[NOOP] Created issue for: '${full_title}'`;
+        const message = `[NOOP] Created issue for: '${item.title}'`;
         core.notice(message);
         resolve(message);
         return;
@@ -95,18 +112,18 @@ const self = {
         .create({
           owner: github.owner,
           repo: github.repo,
-          title: full_title,
-          body: `${item.link}\n\n${item.content}\n\n${item.published}`,
+          title: item.title,
+          body: self.format_body(item),
         })
 
         .then(({ data }) => {
-          const message = `Created issue for: '${full_title}'\n${data.html_url}`;
+          const message = `Created issue for: '${item.title}'\n${data.html_url}`;
           core.notice(message);
           resolve(message);
         })
 
         .catch(({ response }) => {
-          const message = `Error creating issue for: '${full_title}'\n${response.status}: ${response.data.message}`;
+          const message = `Error creating issue for: '${item.title}'\n${response.status}: ${response.data.message}`;
           core.warning(message);
 
           // Resolve to aggregate all the messages in one place.
