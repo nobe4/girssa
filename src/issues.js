@@ -56,7 +56,7 @@ const self = {
           // Filtering happens here, we're removing all the items that already
           // have their ID in any issue title.
           return items.filter(
-            (item) => !issues.some((issue) => issue.title.includes(item.id))
+            (item) => !issues.some((issue) => issue.body.includes(item.id))
           );
         })
 
@@ -72,14 +72,18 @@ const self = {
   //
   // @return {string} - Formatted body
   format_body(item) {
-    const formatted_published = (new Date(item.published)).toLocaleString('en-GB', { timeZone: 'UTC' })
+    const formatted_published = new Date(item.published).toLocaleString(
+      "en-GB",
+      { timeZone: "UTC" }
+    );
+
     const body = `
     | source (link) TODO | [original](${item.link}) | ${formatted_published} | ${item.id} |
     | --- | --- | --- | --- |
 
     ${item.content}
 
-    `.replace(/(  )+/g, '');
+    `.replace(/(\s{2})+/g, "");
 
     return body;
   },

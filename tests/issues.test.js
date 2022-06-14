@@ -38,7 +38,7 @@ describe("select", () => {
   it("filters the items based on the issues list", () => {
     jest
       .spyOn(issues, "list")
-      .mockResolvedValueOnce([{ title: "id2" }, { title: "id3" }]);
+      .mockResolvedValueOnce([{ body: "id2" }, { body: "id3" }]);
 
     expect(
       issues.select([
@@ -66,7 +66,7 @@ describe("format", () => {
 
     content
 
-    `.replace(/(  )+/g, "");
+    `.replace(/(\s{2})+/g, "");
     expect(issues.format_body(item)).toStrictEqual(expected);
   });
 });
