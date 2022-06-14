@@ -13,7 +13,7 @@ afterEach(() => jest.clearAllMocks());
 describe("read", () => {
   it("doesn't read if nooped", () => {
     github.noop = true;
-    expect(sources.read("path")).resolves.toHaveLength(0);
+    expect(sources.read("path")).resolves.toBe(sources.noop_sources);
   });
 
   it("reads and parse the content correctly", () => {

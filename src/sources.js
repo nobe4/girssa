@@ -5,6 +5,15 @@ const rss = require("./rss.js");
 const github = require("./github.js");
 
 const self = {
+  noop_sources: [
+    {
+      name: "fakesource",
+      url: "example.com",
+      rss_url:
+        "https://raw.githubusercontent.com/nobe4/girssa/main/tests/fixtures/atom_feed.xml",
+    },
+  ],
+
   // read reads the source file from its path.
   //
   // @param {string} path - Path to the sources file.
@@ -17,7 +26,7 @@ const self = {
         core.notice(
           `[NOOP] Reading source file ${github.owner}/${github.repo}/${path}`
         );
-        resolve([]);
+        resolve(self.noop_sources);
         return;
       }
 
