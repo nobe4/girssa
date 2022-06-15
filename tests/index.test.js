@@ -98,22 +98,15 @@ describe("main", () => {
 });
 
 describe("run", () => {
-  const sources_items = "sources_items";
-  const processed_sources_items = [
-    [1, 2],
-    [3, 4],
-  ];
+  const sources_items = [1, 2, 3, 4];
   const selected_sources_items = [1, 2, 3];
   const created_source_result = ["ok1", "ok2", "ok3"];
 
   it("it resolves correctly", async () => {
     const github_setup_spy = jest.spyOn(github, "setup");
 
-    const source_read_spy = jest.spyOn(sources, "read");
-    source_read_spy.mockResolvedValueOnce(sources_items);
-
-    const sources_process_spy = jest.spyOn(sources, "process");
-    sources_process_spy.mockResolvedValueOnce(processed_sources_items);
+    const source_get_spy = jest.spyOn(sources, "get");
+    source_get_spy.mockResolvedValueOnce(sources_items);
 
     const issues_select_spy = jest.spyOn(issues, "select");
     issues_select_spy.mockResolvedValueOnce(selected_sources_items);
@@ -136,9 +129,8 @@ describe("run", () => {
       "repo",
       false
     );
-    expect(source_read_spy).toHaveBeenCalledWith("sources");
+    expect(source_get_spy).toHaveBeenCalledWith("sources");
     // TODO: those don't work, but they should ¯\_(ツ)_/¯
-    // expect(sources_process_spy).toHaveBeenCalledWith(sources_items);
     // expect(issues_select_spy).toHaveBeenCalledWith(flattened_sources_items);
     // expect(issues_create_spy).toHaveBeenCalledWith(selected_sources_items);
   });
