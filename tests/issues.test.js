@@ -92,7 +92,6 @@ describe("create_one", () => {
   const item = {
     source: {
       name: "name",
-      url: "url",
     },
     title: "title",
     id: "id",
@@ -106,15 +105,7 @@ describe("create_one", () => {
     repo: "repo",
     title: "title",
     body: "body",
-    labels: [
-      {
-        name: item.source.name,
-        description: item.source.url,
-        url: item.source.url,
-        color: "ffffff",
-        default: false,
-      },
-    ],
+    labels: ["name"],
   };
 
   it("doesn't create if nooped", () => {

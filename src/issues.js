@@ -107,15 +107,7 @@ const self = {
         repo: github.repo,
         title: item.title,
         body: self.format_body(item),
-        labels: [
-          {
-            name: item.source.name,
-            description: item.source.url,
-            url: item.source.url,
-            color: "ffffff",
-            default: false,
-          },
-        ],
+        labels: [item.source.name],
       };
 
       // Bypass if noop is set
