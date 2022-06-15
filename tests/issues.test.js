@@ -7,8 +7,6 @@ beforeEach(() => {
   github.repo = "repo";
 });
 
-afterEach(() => jest.clearAllMocks());
-
 describe("list", () => {
   it("doesn't list if nooped", () => {
     github.noop = true;
@@ -81,7 +79,7 @@ describe("format", () => {
     const expected = [
       "<!-- id -->",
       "| source (link) TODO | [original](link) | 01/02/2003, 04:05:06 |",
-      "| --- | --- | --- | --- |",
+      "| --- | --- | --- |",
       "",
       "content",
     ].join("\n");

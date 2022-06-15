@@ -7,8 +7,8 @@
     "fix": "npx prettier --ignore-path .eslintignore --write .",
     "lint": "npx eslint .",
     "build": "NODE_OPTIONS=--no-experimental-fetch npx ncc --debug build --minify --out dist --source-map --license licenses.txt src/index.js ",
-    "test": "npx jest",
-    "coverage": "npx jest --coverage",
+    "test": "npx jest --clearMocks",
+    "coverage": "npx jest --clearMocks --coverage",
     "all": "npm run fix && npm run lint && npm run coverage && npm run build"
   },
   "repository": {

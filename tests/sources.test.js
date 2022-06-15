@@ -8,8 +8,6 @@ beforeEach(() => {
   github.repo = "repo";
 });
 
-afterEach(() => jest.clearAllMocks());
-
 describe("read", () => {
   it("doesn't read if nooped", () => {
     github.noop = true;
