@@ -99,7 +99,6 @@ describe("main", () => {
 
 describe("run", () => {
   const sources_items = [1, 2, 3, 4];
-  const selected_sources_items = [1, 2, 3];
   const created_source_result = ["ok1", "ok2", "ok3"];
 
   it("it resolves correctly", async () => {
@@ -107,9 +106,6 @@ describe("run", () => {
 
     const source_get_spy = jest.spyOn(sources, "get");
     source_get_spy.mockResolvedValueOnce(sources_items);
-
-    const issues_select_spy = jest.spyOn(issues, "select");
-    issues_select_spy.mockResolvedValueOnce(selected_sources_items);
 
     const issues_create_spy = jest.spyOn(issues, "create");
     issues_create_spy.mockResolvedValueOnce(created_source_result);
@@ -119,9 +115,9 @@ describe("run", () => {
       expect(value).toBe(3);
     });
 
-    expect(index.run(false, "sources", "token", "owner", "repo")).resolves.toBe(
-      "ok1\nok2\nok3"
-    );
+    await expect(
+      index.run(false, "sources", "token", "owner", "repo")
+    ).resolves.toBe("ok1\nok2\nok3");
 
     expect(github_setup_spy).toHaveBeenCalledWith(
       "token",
@@ -130,9 +126,7 @@ describe("run", () => {
       false
     );
     expect(source_get_spy).toHaveBeenCalledWith("sources");
-    // TODO: those don't work, but they should ¯\_(ツ)_/¯
-    // expect(issues_select_spy).toHaveBeenCalledWith(flattened_sources_items);
-    // expect(issues_create_spy).toHaveBeenCalledWith(selected_sources_items);
+    expect(issues_create_spy).toHaveBeenCalledWith(sources_items);
   });
 
   it("it rejects correctly", async () => {

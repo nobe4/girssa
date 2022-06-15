@@ -146,7 +146,9 @@ const self = {
     });
   },
 
-  // create creates new issues for all the items
+  // create selects and creates new issues for all the selected items.
+  // It calls self.select before creating the items, as to only create needed
+  // ones.
   //
   // @param {array} items - List of items to create issues for.
   //
@@ -154,7 +156,10 @@ const self = {
   //                     Reject with any error that occured.
   create(items) {
     return new Promise(function (resolve, reject) {
-      Promise.allSettled(items.map(self.create_one))
+      self
+        .select(items)
+
+        .then((items) => Promise.allSettled(items.map(self.create_one)))
 
         // Return only the values, all the results should be fulfilled.
         .then((results) => results.map((result) => result.value))
