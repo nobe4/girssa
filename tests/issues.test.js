@@ -49,6 +49,13 @@ describe("select", () => {
       ])
     ).resolves.toStrictEqual([{ id: "id1" }, { id: "id4" }]);
   });
+
+  it("works when no issues are found", () => {
+    jest.spyOn(issues, "list").mockResolvedValueOnce([]);
+    const items = [{ id: "id1" }, { id: "id2" }, { id: "id3" }, { id: "id4" }];
+
+    expect(issues.select(items)).resolves.toStrictEqual(items);
+  });
 });
 
 describe("format", () => {
