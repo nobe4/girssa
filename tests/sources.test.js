@@ -49,7 +49,7 @@ describe("filter_results", () => {
   });
 });
 
-describe("process", () => {
+describe("fetch", () => {
   it("gets and filter items correctly", async () => {
     const rss_get_spy = jest.spyOn(rss, "get");
     rss_get_spy.mockResolvedValueOnce(["value1", "value2"]);
@@ -58,9 +58,9 @@ describe("process", () => {
     const source_filter_spy = jest.spyOn(sources, "filter_results");
     source_filter_spy.mockReturnValueOnce("ok");
 
-    await expect(
-      sources.process(["source1", "source2"])
-    ).resolves.toStrictEqual("ok");
+    await expect(sources.fetch(["source1", "source2"])).resolves.toStrictEqual(
+      "ok"
+    );
 
     expect(source_filter_spy).toHaveBeenCalledWith([
       { status: "fulfilled", value: ["value1", "value2"] },
@@ -77,6 +77,27 @@ describe("process", () => {
       throw error;
     });
 
-    await expect(sources.process(["source1"])).rejects.toStrictEqual(error);
+    await expect(sources.fetch(["source1"])).rejects.toStrictEqual(error);
+  });
+});
+
+describe("get", () => {
+  it("gets the items correctly", async () => {
+    const sources_read_spy = jest.spyOn(sources, "read");
+    sources_read_spy.mockResolvedValueOnce([1, 2, 3]);
+
+    const sources_fetch_spy = jest.spyOn(sources, "fetch");
+    sources_fetch_spy.mockResolvedValueOnce([[1], [2, 3]]);
+
+    await expect(sources.get("sources")).resolves.toStrictEqual([1, 2, 3]);
+
+    expect(sources_read_spy).toHaveBeenCalledWith("sources");
+    expect(sources_fetch_spy).toHaveBeenCalledWith([1, 2, 3]);
+  });
+
+  it("catchs correctly", async () => {
+    jest.spyOn(sources, "read").mockRejectedValueOnce("error");
+
+    await expect(sources.get("sources")).rejects.toBe("error");
   });
 });

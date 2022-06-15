@@ -32,17 +32,9 @@ const self = {
     return new Promise((resolve, reject) => {
       github.setup(token, owner, repo, noop);
 
+      // Get the items from the source
       sources
-        .read(sources_path)
-
-        // Fetch the items from the sources
-        .then(sources.process)
-
-        // Flatten the lists of item lists.
-        .then((items) => [].concat(...items))
-
-        // Filter the new items to put in issues.
-        .then(issues.select)
+        .get(sources_path)
 
         // Create the new issues.
         .then(issues.create)

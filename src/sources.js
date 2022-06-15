@@ -18,7 +18,8 @@ const self = {
   //
   // @param {string} path - Path to the sources file.
   //
-  // @return {object} - Parsed content of the json file.
+  // @return {Promise} - Resolves with the parsed content of the json file.
+  //                     Rejects with any error that occured.
   read(path) {
     return new Promise((resolve, reject) => {
       // Bypass if noop is set
@@ -88,13 +89,13 @@ const self = {
     );
   },
 
-  // process loop through the sources and fetch the items for each.
+  // fetch loop through the sources and fetch the items for each.
   //
-  // @param {array} sources - List of sources to process.
+  // @param {array} sources - List of sources to fetch.
   //
-  // @return {Promise} - Resolve when all the mapped sources' promises have resolved.
-  //                     Reject with any error that occured.
-  process(sources) {
+  // @return {Promise} - Resolves when all the mapped sources' promises have resolved.
+  //                     Rejects with any error that occured.
+  fetch(sources) {
     return new Promise((resolve, reject) => {
       Promise.allSettled(
         sources.map((source) => {
@@ -110,10 +111,33 @@ const self = {
         .then(resolve)
 
         .catch((e) => {
-          core.warning("sources.process error");
+          core.warning("sources.fetch error");
           core.warning(e);
           reject(e);
         });
+    });
+  },
+
+  // get gets all the items sources and fetch them.
+  // It's a wrapper around self.read and self.fetch.
+  //
+  // @param {string} path - Path to the sources file.
+  //
+  // @return {Promise} - Resolves with the fetched items.
+  //                     Rejects with any error that occured.
+  get(path) {
+    return new Promise((resolve, reject) => {
+      self
+        .read(path)
+
+        // Fetch the items from the sources
+        .then(self.fetch)
+
+        // Flatten the lists of item lists.
+        .then((items) => [].concat(...items))
+
+        .then(resolve)
+        .catch(reject);
     });
   },
 };

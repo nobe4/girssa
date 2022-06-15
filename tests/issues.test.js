@@ -105,7 +105,7 @@ describe("create_one", () => {
     );
   });
 
-  it("create an issue from the item correctly", () => {
+  it("create an issue from the item correctly", async () => {
     const create_spy = jest.fn();
     github.client = { rest: { issues: { create: create_spy } } };
 
@@ -118,7 +118,7 @@ describe("create_one", () => {
     const format_body_spy = jest.spyOn(issues, "format_body");
     format_body_spy.mockReturnValueOnce("body");
 
-    expect(issues.create_one(item)).resolves.toBe(
+    await expect(issues.create_one(item)).resolves.toBe(
       "Created issue for: 'title'\nhtml_url"
     );
 
@@ -131,7 +131,7 @@ describe("create_one", () => {
     });
   });
 
-  it("fails to create an issue", () => {
+  it("fails to create an issue", async () => {
     const create_spy = jest.fn();
     github.client = { rest: { issues: { create: create_spy } } };
 
@@ -147,7 +147,7 @@ describe("create_one", () => {
     const format_body_spy = jest.spyOn(issues, "format_body");
     format_body_spy.mockReturnValueOnce("body");
 
-    expect(issues.create_one(item)).resolves.toBe(
+    await expect(issues.create_one(item)).resolves.toBe(
       "Error creating issue for: 'title'\nstatus: message"
     );
 
@@ -162,16 +162,20 @@ describe("create_one", () => {
 });
 
 describe("create", () => {
-  it("maps the items to create_one", () => {
+  it("selects and maps the items to create_one", async () => {
+    const select_spy = jest.spyOn(issues, "select");
+    select_spy.mockResolvedValueOnce(["item1", "item2"]);
+
     const create_one_spy = jest.spyOn(issues, "create_one");
     create_one_spy.mockResolvedValueOnce("ok1");
     create_one_spy.mockResolvedValueOnce("ok2");
-    create_one_spy.mockResolvedValueOnce("ok3");
 
-    expect(issues.create(["item1", "item2", "item3"])).resolves.toStrictEqual([
-      "ok1",
-      "ok2",
-      "ok3",
-    ]);
+    await expect(
+      issues.create(["item1", "item2", "item3"])
+    ).resolves.toStrictEqual(["ok1", "ok2"]);
+
+    expect(select_spy).toHaveBeenCalledWith(["item1", "item2", "item3"]);
+    expect(create_one_spy).toHaveBeenCalledWith("item1", 0, ["item1", "item2"]);
+    expect(create_one_spy).toHaveBeenCalledWith("item2", 1, ["item1", "item2"]);
   });
 });

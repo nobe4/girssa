@@ -56,15 +56,10 @@ const self = {
           // Filtering happens here, we're removing all the items that already
           // have their ID in any issue body.
           return items.filter((item) => {
-            core.debug("Filtering item");
-            core.debug(item.title);
-
             return !issues.some((issue) => {
-              core.debug("Comparing against issue");
-              core.debug(issue);
-
               // If the issue has no body, it's not a match.
               if (!issue.body) return false;
+
               return issue.body.includes(item.id);
             });
           });
@@ -146,7 +141,9 @@ const self = {
     });
   },
 
-  // create creates new issues for all the items
+  // create selects and creates new issues for all the selected items.
+  // It calls self.select before creating the items, as to only create needed
+  // ones.
   //
   // @param {array} items - List of items to create issues for.
   //
@@ -154,7 +151,10 @@ const self = {
   //                     Reject with any error that occured.
   create(items) {
     return new Promise(function (resolve, reject) {
-      Promise.allSettled(items.map(self.create_one))
+      self
+        .select(items)
+
+        .then((items) => Promise.allSettled(items.map(self.create_one)))
 
         // Return only the values, all the results should be fulfilled.
         .then((results) => results.map((result) => result.value))
