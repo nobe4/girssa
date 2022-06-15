@@ -54,15 +54,48 @@ const self = {
 
         .then((issues) => {
           // Filtering happens here, we're removing all the items that already
-          // have their ID in any issue title.
-          return items.filter(
-            (item) => !issues.some((issue) => issue.title.includes(item.id))
-          );
+          // have their ID in any issue body.
+          return items.filter((item) => {
+            core.debug("Filtering item");
+            core.debug(item.title);
+
+            return !issues.some((issue) => {
+              core.debug("Comparing against issue");
+              core.debug(issue);
+
+              // If the issue has no body, it's not a match.
+              if (!issue.body) return false;
+              return issue.body.includes(item.id);
+            });
+          });
         })
 
         .then(resolve)
         .catch(reject);
     });
+  },
+
+  // format_body create a string to represent the issue body.
+  //
+  // @param {object} item - Item to create the issue with.
+  //                        See create_one for format.
+  //
+  // @return {string} - Formatted body
+  format_body(item) {
+    const formatted_published = new Date(item.published).toLocaleString(
+      "en-GB",
+      { timeZone: "UTC" }
+    );
+
+    const body = [
+      `<!-- ${item.id} -->`,
+      `| source (link) TODO | [original](${item.link}) | ${formatted_published} |`,
+      `| --- | --- | --- |`,
+      ``,
+      `${item.content}`,
+    ].join("\n");
+
+    return body;
   },
 
   // create creates a new issue for the rss item.
@@ -80,11 +113,9 @@ const self = {
   //                     Reject with any error that occured.
   create_one(item) {
     return new Promise((resolve) => {
-      const full_title = `${item.title} - ${item.id}`;
-
       // Bypass if noop is set
       if (github.noop) {
-        const message = `[NOOP] Created issue for: '${full_title}'`;
+        const message = `[NOOP] Created issue for: '${item.title}'`;
         core.notice(message);
         resolve(message);
         return;
@@ -95,18 +126,18 @@ const self = {
         .create({
           owner: github.owner,
           repo: github.repo,
-          title: full_title,
-          body: `${item.link}\n\n${item.content}\n\n${item.published}`,
+          title: item.title,
+          body: self.format_body(item),
         })
 
         .then(({ data }) => {
-          const message = `Created issue for: '${full_title}'\n${data.html_url}`;
+          const message = `Created issue for: '${item.title}'\n${data.html_url}`;
           core.notice(message);
           resolve(message);
         })
 
         .catch(({ response }) => {
-          const message = `Error creating issue for: '${full_title}'\n${response.status}: ${response.data.message}`;
+          const message = `Error creating issue for: '${item.title}'\n${response.status}: ${response.data.message}`;
           core.warning(message);
 
           // Resolve to aggregate all the messages in one place.

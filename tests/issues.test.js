@@ -7,8 +7,6 @@ beforeEach(() => {
   github.repo = "repo";
 });
 
-afterEach(() => jest.clearAllMocks());
-
 describe("list", () => {
   it("doesn't list if nooped", () => {
     github.noop = true;
@@ -38,7 +36,7 @@ describe("select", () => {
   it("filters the items based on the issues list", () => {
     jest
       .spyOn(issues, "list")
-      .mockResolvedValueOnce([{ title: "id2" }, { title: "id3" }]);
+      .mockResolvedValueOnce([{ body: "id2" }, { body: "id3" }]);
 
     expect(
       issues.select([
@@ -48,6 +46,45 @@ describe("select", () => {
         { id: "id4" },
       ])
     ).resolves.toStrictEqual([{ id: "id1" }, { id: "id4" }]);
+  });
+
+  it("works when some issues don't have bodies", () => {
+    jest
+      .spyOn(issues, "list")
+      .mockResolvedValueOnce([{ body: "id2" }, { no_body: true }]);
+
+    expect(
+      issues.select([{ id: "id1" }, { id: "id2" }, { id: "id3" }])
+    ).resolves.toStrictEqual([{ id: "id1" }, { id: "id3" }]);
+  });
+
+  it("works when no issues are found", () => {
+    jest.spyOn(issues, "list").mockResolvedValueOnce([]);
+    const items = [{ id: "id1" }, { id: "id2" }, { id: "id3" }, { id: "id4" }];
+
+    expect(issues.select(items)).resolves.toStrictEqual(items);
+  });
+});
+
+describe("format", () => {
+  it("formats the body correctly", () => {
+    const item = {
+      id: "id",
+      link: "link",
+      title: "title",
+      content: "content",
+      published: 1044072306000, // 01/02/2003, 04:05:06
+    };
+
+    const expected = [
+      "<!-- id -->",
+      "| source (link) TODO | [original](link) | 01/02/2003, 04:05:06 |",
+      "| --- | --- | --- |",
+      "",
+      "content",
+    ].join("\n");
+
+    expect(issues.format_body(item)).toStrictEqual(expected);
   });
 });
 
@@ -64,7 +101,7 @@ describe("create_one", () => {
     github.noop = true;
 
     expect(issues.create_one(item)).resolves.toStrictEqual(
-      "[NOOP] Created issue for: 'title - id'"
+      "[NOOP] Created issue for: 'title'"
     );
   });
 
@@ -78,15 +115,19 @@ describe("create_one", () => {
       },
     });
 
+    const format_body_spy = jest.spyOn(issues, "format_body");
+    format_body_spy.mockReturnValueOnce("body");
+
     expect(issues.create_one(item)).resolves.toBe(
-      "Created issue for: 'title - id'\nhtml_url"
+      "Created issue for: 'title'\nhtml_url"
     );
 
+    expect(format_body_spy).toHaveBeenCalledWith(item);
     expect(create_spy).toHaveBeenCalledWith({
       owner: github.owner,
       repo: github.repo,
-      title: "title - id",
-      body: "link\n\ncontent\n\npublished",
+      title: "title",
+      body: "body",
     });
   });
 
@@ -103,15 +144,19 @@ describe("create_one", () => {
       },
     });
 
+    const format_body_spy = jest.spyOn(issues, "format_body");
+    format_body_spy.mockReturnValueOnce("body");
+
     expect(issues.create_one(item)).resolves.toBe(
-      "Error creating issue for: 'title - id'\nstatus: message"
+      "Error creating issue for: 'title'\nstatus: message"
     );
 
+    expect(format_body_spy).toHaveBeenCalledWith(item);
     expect(create_spy).toHaveBeenCalledWith({
       owner: github.owner,
       repo: github.repo,
-      title: "title - id",
-      body: "link\n\ncontent\n\npublished",
+      title: "title",
+      body: "body",
     });
   });
 });

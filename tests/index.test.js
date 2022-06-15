@@ -5,8 +5,6 @@ const issues = require("../src/issues.js");
 const github = require("../src/github.js");
 const index = require("../src/index.js");
 
-afterEach(() => jest.clearAllMocks());
-
 describe("main", () => {
   it("fetchs, parses and uses the input correctly", async () => {
     // Key is value, except for repository.
