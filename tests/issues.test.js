@@ -77,13 +77,15 @@ describe("format", () => {
       content: "content",
       published: 1044072306000, // 01/02/2003, 04:05:06
     };
-    const expected = `
-    | source (link) TODO | [original](link) | 01/02/2003, 04:05:06 | id |
-    | --- | --- | --- | --- |
 
-    content
+    const expected = [
+      "<!-- id -->",
+      "| source (link) TODO | [original](link) | 01/02/2003, 04:05:06 |",
+      "| --- | --- | --- | --- |",
+      "",
+      "content",
+    ].join("\n");
 
-    `.replace(/(\s{2})+/g, "");
     expect(issues.format_body(item)).toStrictEqual(expected);
   });
 });

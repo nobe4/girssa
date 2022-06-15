@@ -87,13 +87,13 @@ const self = {
       { timeZone: "UTC" }
     );
 
-    const body = `
-    | source (link) TODO | [original](${item.link}) | ${formatted_published} | ${item.id} |
-    | --- | --- | --- | --- |
-
-    ${item.content}
-
-    `.replace(/(\s{2})+/g, "");
+    const body = [
+      `<!-- ${item.id} -->`,
+      `| source (link) TODO | [original](${item.link}) | ${formatted_published} |`,
+      `| --- | --- | --- |`,
+      ``,
+      `${item.content}`,
+    ].join("\n");
 
     return body;
   },
