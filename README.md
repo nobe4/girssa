@@ -7,7 +7,6 @@
  \_____||_____||_|  \_\|_____/|_____//_/    \_\
 
  GitHub        RSS                   Action
-
 ```
 
 :warning: Still under development, here be dragons :dragon:
@@ -90,7 +89,7 @@ jobs:
 
 ## Contributing
 
-See [the contributing guide](./CONTRIBUTING.mg)
+See [the contributing guide](./CONTRIBUTING.md)
 
 ## License
 
