@@ -54,7 +54,7 @@ const self = {
 
         .then((issues) => {
           // Filtering happens here, we're removing all the items that already
-          // have their ID in any issue title.
+          // have their ID in any issue body.
           return items.filter(
             (item) => !issues.some((issue) => issue.body.includes(item.id))
           );
