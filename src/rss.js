@@ -170,7 +170,7 @@ const self = {
   get(source) {
     return new Promise((resolve, reject) => {
       self
-        .fetch(source.url)
+        .fetch(source.rss_url)
         .then((data) => self.parse(data, source))
         .then(resolve)
         .catch(reject);
