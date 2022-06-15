@@ -102,9 +102,19 @@ const self = {
   //                     Reject with any error that occured.
   create_one(item) {
     return new Promise((resolve) => {
+      const issue_data = {
+        owner: github.owner,
+        repo: github.repo,
+        title: item.title,
+        body: self.format_body(item),
+        labels: [item.source.name],
+      };
+
       // Bypass if noop is set
       if (github.noop) {
-        const message = `[NOOP] Created issue for: '${item.title}'`;
+        const message = `[NOOP] Created issue for: '${
+          item.title
+        }'\n${JSON.stringify(issue_data)}`;
         core.notice(message);
         resolve(message);
         return;
@@ -112,12 +122,8 @@ const self = {
 
       github.client.rest.issues
 
-        .create({
-          owner: github.owner,
-          repo: github.repo,
-          title: item.title,
-          body: self.format_body(item),
-        })
+        // https://docs.github.com/en/rest/issues/issues#create-an-issue
+        .create(issue_data)
 
         .then(({ data }) => {
           const message = `Created issue for: '${item.title}'\n${data.html_url}`;
