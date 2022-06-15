@@ -56,10 +56,12 @@ const self = {
           // Filtering happens here, we're removing all the items that already
           // have their ID in any issue body.
           return items.filter((item) => {
-            core.debug("Filtering item", item.title);
+            core.debug("Filtering item");
+            core.debug(item.title);
 
             return !issues.some((issue) => {
-              core.debug("Comparing against issue", issue);
+              core.debug("Comparing against issue");
+              core.debug(issue);
               return issue.body.includes(item.id);
             });
           });
