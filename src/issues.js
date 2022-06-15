@@ -62,6 +62,9 @@ const self = {
             return !issues.some((issue) => {
               core.debug("Comparing against issue");
               core.debug(issue);
+
+              // If the issue has no body, it's not a match.
+              if (!issue.body) return false;
               return issue.body.includes(item.id);
             });
           });

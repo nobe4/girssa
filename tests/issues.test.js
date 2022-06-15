@@ -50,6 +50,16 @@ describe("select", () => {
     ).resolves.toStrictEqual([{ id: "id1" }, { id: "id4" }]);
   });
 
+  it("works when some issues don't have bodies", () => {
+    jest
+      .spyOn(issues, "list")
+      .mockResolvedValueOnce([{ body: "id2" }, { no_body: true }]);
+
+    expect(
+      issues.select([{ id: "id1" }, { id: "id2" }, { id: "id3" }])
+    ).resolves.toStrictEqual([{ id: "id1" }, { id: "id3" }]);
+  });
+
   it("works when no issues are found", () => {
     jest.spyOn(issues, "list").mockResolvedValueOnce([]);
     const items = [{ id: "id1" }, { id: "id2" }, { id: "id3" }, { id: "id4" }];
