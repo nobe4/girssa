@@ -96,13 +96,7 @@ const self = {
   // create creates a new issue for the rss item.
   //
   // @param {object} item - Item to create the issue with.
-  //        {
-  //          id: '<ID>',
-  //          link: '<LINK>',
-  //          title: '<TITLE>',
-  //          content: '<CONTENT>',
-  //          published: <TIMESTAMP>
-  //        }
+  //                        See rss.parse_item for format.
   //
   // @return {Promise} - Resolve with the list of fetched issues.
   //                     Reject with any error that occured.

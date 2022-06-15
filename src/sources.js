@@ -101,7 +101,7 @@ const self = {
         sources.map((source) => {
           core.debug(`Processing ${source.name}`);
 
-          return rss.get(source.rss_url);
+          return rss.get(source);
         })
       )
 

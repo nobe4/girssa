@@ -61,6 +61,8 @@ describe("fetch", () => {
     await expect(sources.fetch(["source1", "source2"])).resolves.toStrictEqual(
       "ok"
     );
+    expect(rss_get_spy).toHaveBeenCalledWith("source1");
+    expect(rss_get_spy).toHaveBeenCalledWith("source2");
 
     expect(source_filter_spy).toHaveBeenCalledWith([
       { status: "fulfilled", value: ["value1", "value2"] },

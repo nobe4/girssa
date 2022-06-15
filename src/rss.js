@@ -90,10 +90,25 @@ const self = {
   // It makes RSS/ATOM into a single type of object.
   //
   // @param {object} item - The item to extract the content from.
+  // @param {object} source - The source this item is coming from.
   //
   // @return {object} The parsed item.
-  parse_item(item) {
+  // Format:
+  //        {
+  //          source: {
+  //            name: '<NAME>',
+  //            url: '<URL>',
+  //            rss_url: '<URL>',
+  //          },
+  //          id: '<ID>',
+  //          link: '<LINK>',
+  //          title: '<TITLE>',
+  //          content: '<CONTENT>',
+  //          published: <TIMESTAMP>
+  //        }
+  parse_item(item, source) {
     return {
+      source: source,
       id: item.guid || item.id,
       title: item.title,
       content: self.parse_content(item),
@@ -107,10 +122,11 @@ const self = {
   // ref: https://en.wikipedia.org/wiki/RSS#RSS_compared_with_Atom
   //
   // @param {string} data - The string data containing the feed in XML.
+  // @param {object} source - The source this data is coming from.
   //
   // @return {Promise} - Resolve with the parsed items.
   //                     Reject with any error that occured.
-  parse(data) {
+  parse(data, source) {
     return new Promise((resolve, reject) => {
       const parser = new XMLParser();
       const result = parser.parse(data);
@@ -137,7 +153,9 @@ const self = {
       if (items && !Array.isArray(items)) items = [items];
 
       // Parse each items
-      const parsed_items = items.map(self.parse_item);
+      const parsed_items = items.map((item) => {
+        return self.parse_item(item, source);
+      });
 
       resolve(parsed_items);
     });
@@ -145,13 +163,17 @@ const self = {
 
   // get is the entrypoint to get the RSS items.
   //
-  // @param {string} url - The feed URL to fetch the items from.
+  // @param {object} source - The source to get the items from.
   //
   // @return {Promise} - Resolve with the parsed items.
   //                     Reject with any error that occured.
-  get(url) {
+  get(source) {
     return new Promise((resolve, reject) => {
-      self.fetch(url).then(self.parse).then(resolve).catch(reject);
+      self
+        .fetch(source.url)
+        .then((data) => self.parse(data, source))
+        .then(resolve)
+        .catch(reject);
     });
   },
 };

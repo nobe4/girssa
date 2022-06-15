@@ -4,6 +4,8 @@ const { XMLParser } = require("fast-xml-parser");
 
 const rss = require("../src/rss.js");
 
+const source = "source";
+
 describe("fetch", () => {
   it("rejects a non-200 status code", async () => {
     jest.spyOn(https, "get").mockImplementationOnce((url, cb) => {
@@ -107,6 +109,7 @@ describe("parse_link", () => {
 
 describe("parse_item", () => {
   const expected = {
+    source: source,
     id: "id",
     title: "title",
     link: "link",
@@ -132,7 +135,7 @@ describe("parse_item", () => {
       jest.spyOn(rss, "parse_content").mockReturnValueOnce("content");
       jest.spyOn(rss, "parse_published").mockReturnValueOnce("published");
 
-      expect(rss.parse_item(item)).toEqual(expected);
+      expect(rss.parse_item(item, source)).toEqual(expected);
     });
   });
 });
@@ -164,7 +167,7 @@ describe("parse", () => {
       .mockReturnValueOnce("parsed_2")
       .mockReturnValueOnce("parsed_3");
 
-    expect(rss.parse("whatever")).resolves.toStrictEqual([
+    expect(rss.parse("data", source)).resolves.toStrictEqual([
       "parsed_1",
       "parsed_2",
       "parsed_3",
@@ -182,7 +185,7 @@ describe("parse", () => {
       .mockReturnValueOnce("parsed_2")
       .mockReturnValueOnce("parsed_3");
 
-    expect(rss.parse("whatever")).resolves.toStrictEqual([
+    expect(rss.parse("data", source)).resolves.toStrictEqual([
       "parsed_1",
       "parsed_2",
       "parsed_3",
