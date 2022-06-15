@@ -96,21 +96,25 @@ const self = {
   // create creates a new issue for the rss item.
   //
   // @param {object} item - Item to create the issue with.
-  //        {
-  //          id: '<ID>',
-  //          link: '<LINK>',
-  //          title: '<TITLE>',
-  //          content: '<CONTENT>',
-  //          published: <TIMESTAMP>
-  //        }
+  //                        See rss.parse_item for format.
   //
   // @return {Promise} - Resolve with the list of fetched issues.
   //                     Reject with any error that occured.
   create_one(item) {
     return new Promise((resolve) => {
+      const issue_data = {
+        owner: github.owner,
+        repo: github.repo,
+        title: item.title,
+        body: self.format_body(item),
+        labels: [item.source.name],
+      };
+
       // Bypass if noop is set
       if (github.noop) {
-        const message = `[NOOP] Created issue for: '${item.title}'`;
+        const message = `[NOOP] Created issue for: '${
+          item.title
+        }'\n${JSON.stringify(issue_data)}`;
         core.notice(message);
         resolve(message);
         return;
@@ -118,12 +122,8 @@ const self = {
 
       github.client.rest.issues
 
-        .create({
-          owner: github.owner,
-          repo: github.repo,
-          title: item.title,
-          body: self.format_body(item),
-        })
+        // https://docs.github.com/en/rest/issues/issues#create-an-issue
+        .create(issue_data)
 
         .then(({ data }) => {
           const message = `Created issue for: '${item.title}'\n${data.html_url}`;

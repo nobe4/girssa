@@ -4,6 +4,12 @@ const { XMLParser } = require("fast-xml-parser");
 
 const rss = require("../src/rss.js");
 
+const source = {
+  name: "name",
+  url: "url",
+  rss_url: "rss_url",
+};
+
 describe("fetch", () => {
   it("rejects a non-200 status code", async () => {
     jest.spyOn(https, "get").mockImplementationOnce((url, cb) => {
@@ -107,6 +113,7 @@ describe("parse_link", () => {
 
 describe("parse_item", () => {
   const expected = {
+    source: source,
     id: "id",
     title: "title",
     link: "link",
@@ -132,7 +139,7 @@ describe("parse_item", () => {
       jest.spyOn(rss, "parse_content").mockReturnValueOnce("content");
       jest.spyOn(rss, "parse_published").mockReturnValueOnce("published");
 
-      expect(rss.parse_item(item)).toEqual(expected);
+      expect(rss.parse_item(item, source)).toEqual(expected);
     });
   });
 });
@@ -164,7 +171,7 @@ describe("parse", () => {
       .mockReturnValueOnce("parsed_2")
       .mockReturnValueOnce("parsed_3");
 
-    expect(rss.parse("whatever")).resolves.toStrictEqual([
+    expect(rss.parse("data", source)).resolves.toStrictEqual([
       "parsed_1",
       "parsed_2",
       "parsed_3",
@@ -182,7 +189,7 @@ describe("parse", () => {
       .mockReturnValueOnce("parsed_2")
       .mockReturnValueOnce("parsed_3");
 
-    expect(rss.parse("whatever")).resolves.toStrictEqual([
+    expect(rss.parse("data", source)).resolves.toStrictEqual([
       "parsed_1",
       "parsed_2",
       "parsed_3",
@@ -233,14 +240,20 @@ describe("parse", () => {
 });
 
 describe("get", () => {
-  it("works and resolve", () => {
-    jest.spyOn(rss, "fetch").mockResolvedValueOnce("data");
-    jest.spyOn(rss, "parse").mockResolvedValueOnce("OK");
-    expect(rss.get("url")).resolves.toBe("OK");
+  it("works and resolve", async () => {
+    const rss_fetch_spy = jest.spyOn(rss, "fetch");
+    rss_fetch_spy.mockResolvedValueOnce("data");
+
+    const rss_parse_spy = jest.spyOn(rss, "parse");
+    rss_parse_spy.mockResolvedValueOnce("OK");
+
+    await expect(rss.get(source)).resolves.toBe("OK");
+    expect(rss_fetch_spy).toHaveBeenCalledWith("rss_url");
+    expect(rss_parse_spy).toHaveBeenCalledWith("data", source);
   });
 
   it("fails and rejects", () => {
     jest.spyOn(rss, "fetch").mockRejectedValueOnce("error");
-    expect(rss.get("url")).rejects.toBe("error");
+    expect(rss.get(source)).rejects.toBe("error");
   });
 });

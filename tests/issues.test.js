@@ -90,6 +90,9 @@ describe("format", () => {
 
 describe("create_one", () => {
   const item = {
+    source: {
+      name: "name",
+    },
     title: "title",
     id: "id",
     content: "content",
@@ -97,10 +100,18 @@ describe("create_one", () => {
     published: "published",
   };
 
+  const issue_data = {
+    owner: "owner",
+    repo: "repo",
+    title: "title",
+    body: "body",
+    labels: ["name"],
+  };
+
   it("doesn't create if nooped", () => {
     github.noop = true;
 
-    expect(issues.create_one(item)).resolves.toStrictEqual(
+    expect(issues.create_one(item)).resolves.toMatch(
       "[NOOP] Created issue for: 'title'"
     );
   });
@@ -123,12 +134,7 @@ describe("create_one", () => {
     );
 
     expect(format_body_spy).toHaveBeenCalledWith(item);
-    expect(create_spy).toHaveBeenCalledWith({
-      owner: github.owner,
-      repo: github.repo,
-      title: "title",
-      body: "body",
-    });
+    expect(create_spy).toHaveBeenCalledWith(issue_data);
   });
 
   it("fails to create an issue", async () => {
@@ -152,12 +158,7 @@ describe("create_one", () => {
     );
 
     expect(format_body_spy).toHaveBeenCalledWith(item);
-    expect(create_spy).toHaveBeenCalledWith({
-      owner: github.owner,
-      repo: github.repo,
-      title: "title",
-      body: "body",
-    });
+    expect(create_spy).toHaveBeenCalledWith(issue_data);
   });
 });
 
