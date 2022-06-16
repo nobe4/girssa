@@ -33,36 +33,68 @@ describe("list", () => {
 });
 
 describe("select", () => {
-  it("filters the items based on the issues list", () => {
-    jest
-      .spyOn(issues, "list")
-      .mockResolvedValueOnce([{ body: "id2" }, { body: "id3" }]);
+  it("catch correctly", () => {
+    jest.spyOn(issues, "list").mockRejectedValueOnce("error");
 
-    expect(
-      issues.select([
-        { id: "id1" },
-        { id: "id2" },
-        { id: "id3" },
-        { id: "id4" },
-      ])
-    ).resolves.toStrictEqual([{ id: "id1" }, { id: "id4" }]);
+    expect(issues.select("whatever")).rejects.toStrictEqual("error");
   });
 
-  it("works when some issues don't have bodies", () => {
-    jest
-      .spyOn(issues, "list")
-      .mockResolvedValueOnce([{ body: "id2" }, { no_body: true }]);
-
-    expect(
-      issues.select([{ id: "id1" }, { id: "id2" }, { id: "id3" }])
-    ).resolves.toStrictEqual([{ id: "id1" }, { id: "id3" }]);
-  });
-
-  it("works when no issues are found", () => {
-    jest.spyOn(issues, "list").mockResolvedValueOnce([]);
-    const items = [{ id: "id1" }, { id: "id2" }, { id: "id3" }, { id: "id4" }];
-
-    expect(issues.select(items)).resolves.toStrictEqual(items);
+  [
+    {
+      name: "no items means no items",
+      items: ["whatever"],
+      issues: [],
+      expected: ["whatever"],
+    },
+    {
+      name: "no issues doesn't filter at all",
+      items: [{ id: 1 }, { id: 2 }],
+      issues: [],
+      expected: [{ id: 1 }, { id: 2 }],
+    },
+    {
+      name: "issues without body don't filter",
+      items: [{ id: 1 }, { id: 2 }],
+      issues: [{ no_body: true }],
+      expected: [{ id: 1 }, { id: 2 }],
+    },
+    {
+      name: "issues without the id in a body don't filter",
+      items: [{ id: 1 }, { id: 2 }],
+      issues: [{ body: "doesn't containt any id" }],
+      expected: [{ id: 1 }, { id: 2 }],
+    },
+    {
+      name: "issues with the id in a body filter",
+      items: [{ id: 1 }, { id: 2 }],
+      issues: [{ body: "In this string, 1 is an id" }],
+      expected: [{ id: 2 }],
+    },
+    {
+      name: "issues with the id in a body filter",
+      items: [{ id: 1 }, { id: 2 }],
+      issues: [
+        { body: "In this string, 1 is an id" },
+        { body: "In this string, 2 is an id" },
+      ],
+      expected: [],
+    },
+    {
+      name: "issues with the id in a complex body filter",
+      items: [{ id: 1 }, { id: 2 }],
+      issues: [
+        {
+          body: "http://example.com is a fascinating website @)&(*=!@(&*=!ID HERE 1 ID HERE@)&(=*!@(&*=!",
+        },
+        { body: "In this string, 2 is an id" },
+      ],
+      expected: [],
+    },
+  ].forEach((test) => {
+    it(`works for ${test.name}`, () => {
+      jest.spyOn(issues, "list").mockResolvedValueOnce(test.issues);
+      expect(issues.select(test.items)).resolves.toStrictEqual(test.expected);
+    });
   });
 });
 
