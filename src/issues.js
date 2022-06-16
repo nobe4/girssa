@@ -84,7 +84,7 @@ const self = {
 
     const body = [
       `<!-- ${item.id} -->`,
-      `| source (link) TODO | [original](${item.link}) | ${formatted_published} |`,
+      `| [${item.source.name}](${item.source.url}) | [original](${item.link}) | ${formatted_published} |`,
       `| --- | --- | --- |`,
       ``,
       `${item.content}`,
