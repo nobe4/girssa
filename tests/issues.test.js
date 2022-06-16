@@ -41,10 +41,16 @@ describe("select", () => {
 
   [
     {
-      name: "no items means no items",
-      items: ["whatever"],
+      name: "missing items means no items",
+      items: undefined,
       issues: [],
-      expected: ["whatever"],
+      expected: [],
+    },
+    {
+      name: "no items means no items",
+      items: [],
+      issues: [],
+      expected: [],
     },
     {
       name: "no issues doesn't filter at all",
