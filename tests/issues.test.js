@@ -69,6 +69,11 @@ describe("select", () => {
 describe("format", () => {
   it("formats the body correctly", () => {
     const item = {
+      source: {
+        name: "name",
+        rss_url: "rss_url",
+        url: "url",
+      },
       id: "id",
       link: "link",
       title: "title",
@@ -78,7 +83,7 @@ describe("format", () => {
 
     const expected = [
       "<!-- id -->",
-      "| source (link) TODO | [original](link) | 01/02/2003, 04:05:06 |",
+      "| [name](url) | [original](link) | 01/02/2003, 04:05:06 |",
       "| --- | --- | --- |",
       "",
       "content",
