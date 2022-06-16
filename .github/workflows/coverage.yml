@@ -8,7 +8,7 @@ on:
       - "releases/*"
 
 jobs:
-  units:
+  coverage-check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
