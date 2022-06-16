@@ -69,9 +69,9 @@ const self = {
 
           // Filtering happens here, we're removing all the items that already
           // have their ID in any issue body.
-          return items.filter((item) => {
-            return !issues.some((issue) => issue.body.includes(item.id));
-          });
+          return items.filter(
+            (item) => !issues.some((issue) => issue.body.includes(item.id))
+          );
         })
 
         .then(resolve)

@@ -77,7 +77,16 @@ describe("select", () => {
       expected: [{ id: 2 }],
     },
     {
-      name: "issues with the id in a body filter",
+      name: "issues with the id in a two bodies filter",
+      items: [{ id: 1 }, { id: 2 }],
+      issues: [
+        { body: "In this string, 1 is an id" },
+        { body: "In this string, 2 is an id" },
+      ],
+      expected: [],
+    },
+    {
+      name: "issues with multiple ids in a body filter",
       items: [{ id: 1 }, { id: 2 }],
       issues: [
         { body: "In this string, 1 is an id" },
@@ -97,9 +106,11 @@ describe("select", () => {
       expected: [],
     },
   ].forEach((test) => {
-    it(`works for ${test.name}`, () => {
-      jest.spyOn(issues, "list").mockResolvedValueOnce(test.issues);
-      expect(issues.select(test.items)).resolves.toStrictEqual(test.expected);
+    it(`works for ${test.name}`, async () => {
+      issues.list = jest.fn().mockResolvedValueOnce(test.issues);
+      await expect(issues.select(test.items)).resolves.toStrictEqual(
+        test.expected
+      );
     });
   });
 });
