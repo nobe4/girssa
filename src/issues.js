@@ -50,7 +50,7 @@ const self = {
       core.debug("Filtering the items");
 
       // Bypass if there's no items
-      if (!items) {
+      if (!items || items.length == 0) {
         resolve([]);
         return;
       }
