@@ -28,8 +28,10 @@ jobs:
         with:
           node-version: 16.x
 
-      - name: Install and build
+      - name: Install dependencies
         run: npm clean-install
+
+      - name: Rebuild the dist directory
         run: npm run build
 
       - name: Compare the expected and actual dist/ directories
