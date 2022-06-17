@@ -21,9 +21,8 @@ const self = {
 
       core.debug(`List all the issues in ${github.owner}/${github.repo}`);
 
-      github.client.rest.issues
-
-        .listForRepo({
+      github.client
+        .paginate(github.client.rest.issues.listForRepo, {
           owner: github.owner,
           repo: github.repo,
           state: "all",

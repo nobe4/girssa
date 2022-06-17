@@ -8,27 +8,46 @@ beforeEach(() => {
 });
 
 describe("list", () => {
-  it("doesn't list if nooped", () => {
+  it("doesn't list if nooped", async () => {
     github.noop = true;
-    expect(issues.list()).resolves.toHaveLength(0);
+    await expect(issues.list()).resolves.toHaveLength(0);
   });
 
-  it("lists all the issues", () => {
+  it("lists all the issues with pagination", async () => {
     const list_spy = jest.fn();
-    github.client = { rest: { issues: { listForRepo: list_spy } } };
+    const paginate_spy = jest.fn();
+    github.client = {
+      paginate: paginate_spy,
+      rest: { issues: { listForRepo: list_spy } },
+    };
+    paginate_spy.mockResolvedValueOnce({ data: "OK" });
 
-    list_spy.mockResolvedValueOnce({ data: "OK" });
-    expect(issues.list()).resolves.toBe("OK");
+    await expect(issues.list()).resolves.toBe("OK");
+
+    expect(paginate_spy).toHaveBeenCalledWith(list_spy, {
+      owner: "owner",
+      repo: "repo",
+      state: "all",
+    });
   });
 
-  it("fails to list the issues", () => {
+  it("fails to list the issues", async () => {
     const list_spy = jest.fn();
-    github.client = { rest: { issues: { listForRepo: list_spy } } };
+    const paginate_spy = jest.fn();
+    github.client = {
+      paginate: paginate_spy,
+      rest: { issues: { listForRepo: list_spy } },
+    };
 
     const error = { stack: "the stack" };
-    list_spy.mockRejectedValueOnce(error);
+    paginate_spy.mockRejectedValueOnce(error);
 
-    expect(issues.list()).rejects.toStrictEqual(error);
+    await expect(issues.list()).rejects.toStrictEqual(error);
+    expect(paginate_spy).toHaveBeenCalledWith(list_spy, {
+      owner: "owner",
+      repo: "repo",
+      state: "all",
+    });
   });
 });
 
