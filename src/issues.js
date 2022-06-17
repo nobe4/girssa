@@ -49,20 +49,29 @@ const self = {
     return new Promise((resolve, reject) => {
       core.debug("Filtering the items");
 
+      // Bypass if there's no items
+      if (!items || items.length == 0) {
+        resolve([]);
+        return;
+      }
+
       self
         .list()
 
+        // If the issue has no body, it's never a match.
+        .then((issues) =>
+          issues.filter((issue) => issue.body && issue.body.length != 0)
+        )
+
         .then((issues) => {
+          // No issues mean we allow all items;
+          if (issues.length == 0) return items;
+
           // Filtering happens here, we're removing all the items that already
           // have their ID in any issue body.
-          return items.filter((item) => {
-            return !issues.some((issue) => {
-              // If the issue has no body, it's not a match.
-              if (!issue.body) return false;
-
-              return issue.body.includes(item.id);
-            });
-          });
+          return items.filter(
+            (item) => !issues.some((issue) => issue.body.includes(item.id))
+          );
         })
 
         .then(resolve)
