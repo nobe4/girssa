@@ -20,9 +20,9 @@ describe("list", () => {
       paginate: paginate_spy,
       rest: { issues: { listForRepo: list_spy } },
     };
-    paginate_spy.mockResolvedValueOnce({ data: "OK" });
+    paginate_spy.mockResolvedValueOnce(["OK"]);
 
-    await expect(issues.list()).resolves.toBe("OK");
+    await expect(issues.list()).resolves.toBe(["OK"]);
 
     expect(paginate_spy).toHaveBeenCalledWith(list_spy, {
       owner: "owner",

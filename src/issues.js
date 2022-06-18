@@ -5,6 +5,8 @@ const github = require("./github.js");
 
 const self = {
   // list lists all the issues in the repository.
+  // https://octokit.github.io/rest.js/v18#issues-list-for-repo
+  // https://octokit.github.io/rest.js/v18#pagination
   //
   // @return {Promise} - Resolve with the list of fetched issues.
   //                     Reject with any error that occured.
@@ -28,9 +30,9 @@ const self = {
           state: "all",
         })
 
-        .then(({ data }) => {
-          core.debug(`Found ${data.length} issues to filter over`);
-          resolve(data);
+        .then((issues) => {
+          core.debug(`Found ${issues.length} issues to filter over`);
+          resolve(issues);
         })
 
         .catch((e) => {
