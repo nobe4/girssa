@@ -126,9 +126,9 @@ describe("run", () => {
     const source_read_spy = jest.spyOn(sources, "read");
     source_read_spy.mockRejectedValueOnce("error");
 
-    await expect(index.run(false, "sources", "token", "owner", "repo")).rejects.toBe(
-      "error"
-    );
+    await expect(
+      index.run(false, "sources", "token", "owner", "repo")
+    ).rejects.toBe("error");
 
     expect(github_setup_spy).toHaveBeenCalledWith(
       "token",

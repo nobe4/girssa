@@ -16,7 +16,9 @@ describe("list", () => {
 
     await expect(issues.list()).resolves.toHaveLength(0);
 
-    expect(core.notice).toHaveBeenCalledWith("[NOOP] List all the issues in owner/repo")
+    expect(core.notice).toHaveBeenCalledWith(
+      "[NOOP] List all the issues in owner/repo"
+    );
   });
 
   it("lists all the issues", async () => {
@@ -35,7 +37,9 @@ describe("list", () => {
       repo: "repo",
       state: "all",
     });
-    expect(core.debug).toHaveBeenCalledWith("List all the issues in owner/repo")
+    expect(core.debug).toHaveBeenCalledWith(
+      "List all the issues in owner/repo"
+    );
   });
 
   it("fails to list the issues", async () => {
@@ -46,7 +50,7 @@ describe("list", () => {
       rest: { issues: { listForRepo: list_spy } },
     };
 
-    const error = new Error("error")
+    const error = new Error("error");
     paginate_spy.mockRejectedValueOnce(error);
 
     await expect(issues.list()).rejects.toStrictEqual(error);
@@ -56,8 +60,8 @@ describe("list", () => {
       repo: "repo",
       state: "all",
     });
-    expect(core.warning).toHaveBeenCalledWith("issues.list error")
-    expect(core.warning).toHaveBeenCalledWith(error)
+    expect(core.warning).toHaveBeenCalledWith("issues.list error");
+    expect(core.warning).toHaveBeenCalledWith(error);
   });
 });
 
@@ -204,7 +208,9 @@ describe("create_one", () => {
       "[NOOP] Created issue for: 'title'"
     );
 
-    expect(core.notice).toHaveBeenCalledWith("[NOOP] Created issue for: 'title'")
+    expect(core.notice).toHaveBeenCalledWith(
+      "[NOOP] Created issue for: 'title'"
+    );
   });
 
   it("create an issue from the item correctly", async () => {
@@ -224,7 +230,7 @@ describe("create_one", () => {
 
     expect(format_body_spy).toHaveBeenCalledWith(item);
     expect(create_spy).toHaveBeenCalledWith(issue_data);
-    expect(core.notice).toHaveBeenCalledWith("html_url => title")
+    expect(core.notice).toHaveBeenCalledWith("html_url => title");
   });
 
   it("fails to create an issue", async () => {
@@ -243,10 +249,8 @@ describe("create_one", () => {
     expect(format_body_spy).toHaveBeenCalledWith(item);
     expect(create_spy).toHaveBeenCalledWith(issue_data);
     expect(core.warning).toHaveBeenCalledWith(
-      expect.stringMatching(
-      "Error creating issue for: 'title'\nError: error"
-      )
-    )
+      expect.stringMatching("Error creating issue for: 'title'\nError: error")
+    );
   });
 });
 

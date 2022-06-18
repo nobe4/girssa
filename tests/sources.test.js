@@ -33,7 +33,9 @@ describe("read", () => {
 
     await expect(sources.read("path")).resolves.toStrictEqual({ json: true });
 
-    expect(core.debug).toHaveBeenCalledWith("Reading source file owner/repo/path");
+    expect(core.debug).toHaveBeenCalledWith(
+      "Reading source file owner/repo/path"
+    );
   });
 
   it("fails to read", async () => {
