@@ -5,6 +5,8 @@ const github = require("./github.js");
 
 const self = {
   // list lists all the issues in the repository.
+  // https://octokit.github.io/rest.js/v18#issues-list-for-repo
+  // https://octokit.github.io/rest.js/v18#pagination
   //
   // @return {Promise} - Resolve with the list of fetched issues.
   //                     Reject with any error that occured.
@@ -21,15 +23,17 @@ const self = {
 
       core.debug(`List all the issues in ${github.owner}/${github.repo}`);
 
-      github.client.rest.issues
-
-        .listForRepo({
+      github.client
+        .paginate(github.client.rest.issues.listForRepo, {
           owner: github.owner,
           repo: github.repo,
           state: "all",
         })
 
-        .then(({ data }) => resolve(data))
+        .then((issues) => {
+          core.debug(`Found ${issues.length} issues to filter over`);
+          resolve(issues);
+        })
 
         .catch((e) => {
           core.warning("issues.list error");
@@ -50,7 +54,7 @@ const self = {
       core.debug("Filtering the items");
 
       // Bypass if there's no items
-      if (!items || items.length == 0) {
+      if (!items || items.length === 0) {
         resolve([]);
         return;
       }
@@ -59,14 +63,27 @@ const self = {
         .list()
 
         // If the issue has no body, it's never a match.
-        .then((issues) =>
-          issues.filter((issue) => issue.body && issue.body.length != 0)
-        )
+        .then((issues) => {
+          // Undefined/empty issues mean we don't filter at all
+          if (!issues || issues.length === 0) {
+            resolve(items);
+            return;
+          }
+
+          // Keep only issues with a body.
+          const filtered_issues = issues.filter(
+            (issue) => issue.body && issue.body.length != 0
+          );
+
+          // No filtered issues mean we allow all items.
+          if (filtered_issues.length === 0) {
+            resolve(items);
+            return;
+          }
+          return filtered_issues;
+        })
 
         .then((issues) => {
-          // No issues mean we allow all items;
-          if (issues.length == 0) return items;
-
           // Filtering happens here, we're removing all the items that already
           // have their ID in any issue body.
           return items.filter(
@@ -103,6 +120,7 @@ const self = {
   },
 
   // create creates a new issue for the rss item.
+  // https://octokit.github.io/rest.js/v18#issues-create
   //
   // @param {object} item - Item to create the issue with.
   //                        See rss.parse_item for format.
@@ -131,7 +149,6 @@ const self = {
 
       github.client.rest.issues
 
-        // https://docs.github.com/en/rest/issues/issues#create-an-issue
         .create(issue_data)
 
         .then(({ data }) => {
@@ -140,8 +157,8 @@ const self = {
           resolve(message);
         })
 
-        .catch(({ response }) => {
-          const message = `Error creating issue for: '${item.title}'\n${response.status}: ${response.data.message}`;
+        .catch((e) => {
+          const message = `Error creating issue for: '${item.title}'\n${e.stack}`;
           core.warning(message);
 
           // Resolve to aggregate all the messages in one place.
