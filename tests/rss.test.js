@@ -1,3 +1,6 @@
+const core = require("@actions/core");
+jest.mock('@actions/core')
+
 const fs = require("fs");
 const https = require("https");
 const { XMLParser } = require("fast-xml-parser");
@@ -18,10 +21,12 @@ describe("fetch", () => {
     });
 
     await expect(rss.fetch("URL")).rejects.toMatch(/Request Failed/);
+
+    expect(core.debug).toHaveBeenCalledWith("Fetching URL")
   });
 
   it("reject if the request has an error", async () => {
-    const error = { stack: "the stack" };
+    const error = new Error("error");
 
     https.get = function (url) {
       expect(url).toBe("URL");
@@ -36,6 +41,10 @@ describe("fetch", () => {
     };
 
     await expect(rss.fetch("URL")).rejects.toBe(error);
+
+    expect(core.debug).toHaveBeenCalledWith("Fetching URL")
+    expect(core.warning).toHaveBeenCalledWith("rss.fetch error")
+    expect(core.warning).toHaveBeenCalledWith(error)
   });
 
   it("reads the body correctly", async () => {
@@ -58,6 +67,7 @@ describe("fetch", () => {
     });
 
     await expect(rss.fetch("URL")).resolves.toBe("body");
+
     expect(setEncodingMock).toHaveBeenCalledWith("utf8");
   });
 });
@@ -252,8 +262,8 @@ describe("get", () => {
     expect(rss_parse_spy).toHaveBeenCalledWith("data", source);
   });
 
-  it("fails and rejects", () => {
+  it("fails and rejects", async () => {
     jest.spyOn(rss, "fetch").mockRejectedValueOnce("error");
-    expect(rss.get(source)).rejects.toBe("error");
+    await expect(rss.get(source)).rejects.toBe("error");
   });
 });
