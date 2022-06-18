@@ -208,9 +208,7 @@ describe("create_one", () => {
     const format_body_spy = jest.spyOn(issues, "format_body");
     format_body_spy.mockReturnValueOnce("body");
 
-    await expect(issues.create_one(item)).resolves.toBe(
-      "Created issue for: 'title'\nhtml_url"
-    );
+    await expect(issues.create_one(item)).resolves.toBe("html_url => title");
 
     expect(format_body_spy).toHaveBeenCalledWith(item);
     expect(create_spy).toHaveBeenCalledWith(issue_data);
