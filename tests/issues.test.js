@@ -13,7 +13,7 @@ describe("list", () => {
     await expect(issues.list()).resolves.toHaveLength(0);
   });
 
-  it("lists all the issues with pagination", async () => {
+  it("lists all the issues", async () => {
     const list_spy = jest.fn();
     const paginate_spy = jest.fn();
     github.client = {
@@ -22,7 +22,7 @@ describe("list", () => {
     };
     paginate_spy.mockResolvedValueOnce(["OK"]);
 
-    await expect(issues.list()).resolves.toBe(["OK"]);
+    await expect(issues.list()).resolves.toStrictEqual(["OK"]);
 
     expect(paginate_spy).toHaveBeenCalledWith(list_spy, {
       owner: "owner",
@@ -220,20 +220,13 @@ describe("create_one", () => {
     const create_spy = jest.fn();
     github.client = { rest: { issues: { create: create_spy } } };
 
-    create_spy.mockRejectedValueOnce({
-      response: {
-        status: "status",
-        data: {
-          message: "message",
-        },
-      },
-    });
+    create_spy.mockRejectedValueOnce(new Error("error"));
 
     const format_body_spy = jest.spyOn(issues, "format_body");
     format_body_spy.mockReturnValueOnce("body");
 
-    await expect(issues.create_one(item)).resolves.toBe(
-      "Error creating issue for: 'title'\nstatus: message"
+    await expect(issues.create_one(item)).resolves.toMatch(
+      "Error creating issue for: 'title'\nError: error"
     );
 
     expect(format_body_spy).toHaveBeenCalledWith(item);

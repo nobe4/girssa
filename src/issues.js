@@ -24,18 +24,11 @@ const self = {
       core.debug(`List all the issues in ${github.owner}/${github.repo}`);
 
       github.client
-        .paginate(
-          github.client.rest.issues.listForRepo,
-          {
-            owner: github.owner,
-            repo: github.repo,
-            state: "all",
-          },
-          (response) => {
-            core.debug(response);
-            return response.data;
-          }
-        )
+        .paginate(github.client.rest.issues.listForRepo, {
+          owner: github.owner,
+          repo: github.repo,
+          state: "all",
+        })
 
         .then((issues) => {
           core.debug(`Found ${issues.length} issues to filter over`);
@@ -127,6 +120,7 @@ const self = {
   },
 
   // create creates a new issue for the rss item.
+  // https://octokit.github.io/rest.js/v18#issues-create
   //
   // @param {object} item - Item to create the issue with.
   //                        See rss.parse_item for format.
@@ -155,7 +149,6 @@ const self = {
 
       github.client.rest.issues
 
-        // https://docs.github.com/en/rest/issues/issues#create-an-issue
         .create(issue_data)
 
         .then(({ data }) => {
@@ -164,8 +157,8 @@ const self = {
           resolve(message);
         })
 
-        .catch(({ response }) => {
-          const message = `Error creating issue for: '${item.title}'\n${response.status}: ${response.data.message}`;
+        .catch((e) => {
+          const message = `Error creating issue for: '${item.title}'\n${e.stack}`;
           core.warning(message);
 
           // Resolve to aggregate all the messages in one place.
