@@ -24,6 +24,7 @@ const self = {
       // The catch below will catch this one as well
     } catch (e) {
       core.error(e);
+      core.error(e.stack);
       core.setFailed(e.message);
     }
   },
