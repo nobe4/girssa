@@ -1,4 +1,5 @@
 const core = require("@actions/core");
+jest.mock("@actions/core");
 
 const sources = require("../src/sources.js");
 const issues = require("../src/issues.js");
@@ -8,14 +9,12 @@ const index = require("../src/index.js");
 describe("main", () => {
   it("fetchs, parses and uses the input correctly", async () => {
     // Key is value, except for repository.
-    jest
-      .spyOn(core, "getInput")
-      .mockImplementation((key) => (key == "repository" ? "owner/repo" : key));
+    core.getInput.mockImplementation((key) =>
+      key == "repository" ? "owner/repo" : key
+    );
 
     const index_run_spy = jest.spyOn(index, "run");
     index_run_spy.mockResolvedValueOnce("OK");
-
-    const core_notice_spy = jest.spyOn(core, "notice");
 
     await index.main();
 
@@ -26,22 +25,20 @@ describe("main", () => {
       "owner",
       "repo"
     );
-    expect(core_notice_spy).toHaveBeenCalledWith(
+    expect(core.notice).toHaveBeenCalledWith(
       "Running with noop: false, sources: sources, repo: owner/repo"
     );
-    expect(core_notice_spy).toHaveBeenCalledWith("OK");
+    expect(core.notice).toHaveBeenCalledWith("OK");
   });
 
   it("parses noop correctly", async () => {
-    jest.spyOn(core, "getInput").mockImplementation((key) =>
+    core.getInput.mockImplementation((key) =>
       // Key is value, except for noop and repository.
       key === "noop" ? "true" : key === "repository" ? "owner/repo" : key
     );
 
     const index_run_spy = jest.spyOn(index, "run");
     index_run_spy.mockResolvedValueOnce("OK");
-
-    const core_notice_spy = jest.spyOn(core, "notice");
 
     await index.main();
 
@@ -52,48 +49,42 @@ describe("main", () => {
       "owner",
       "repo"
     );
-    expect(core_notice_spy).toHaveBeenCalledWith(
+    expect(core.notice).toHaveBeenCalledWith(
       "Running with noop: true, sources: sources, repo: owner/repo"
     );
-    expect(core_notice_spy).toHaveBeenCalledWith("OK");
+    expect(core.notice).toHaveBeenCalledWith("OK");
   });
 
   it("catches correctly after calling run", async () => {
     const error = { message: "error" };
 
-    jest
-      .spyOn(core, "getInput")
-      .mockImplementation((key) => (key == "repository" ? "owner/repo" : key));
+    core.getInput.mockImplementation((key) =>
+      key == "repository" ? "owner/repo" : key
+    );
 
     jest.spyOn(index, "run").mockRejectedValueOnce(error);
 
-    const core_error_spy = jest.spyOn(core, "error");
-    const core_setFailed_spy = jest.spyOn(core, "setFailed");
-    const core_notice_spy = jest.spyOn(core, "notice");
-
     await index.main();
-    expect(core_notice_spy).toHaveBeenCalledWith(
+
+    expect(core.notice).toHaveBeenCalledWith(
       "Running with noop: false, sources: sources, repo: owner/repo"
     );
-    expect(core_error_spy).toHaveBeenCalledWith(error);
-    expect(core_setFailed_spy).toHaveBeenCalledWith(error.message);
+    expect(core.error).toHaveBeenCalledWith(error);
+    expect(core.setFailed).toHaveBeenCalledWith(error.message);
   });
 
   it("catches correctly in the try {}", async () => {
-    jest
-      .spyOn(core, "getInput")
+    core.getInput
       // Will make full_repository.split fail
       .mockImplementation(() => undefined);
     const error_message =
       "Cannot read properties of undefined (reading 'split')";
     const error = new TypeError(error_message);
 
-    const core_error_spy = jest.spyOn(core, "error");
-    const core_setFailed_spy = jest.spyOn(core, "setFailed");
-
     await index.main();
-    expect(core_error_spy).toHaveBeenCalledWith(error);
-    expect(core_setFailed_spy).toHaveBeenCalledWith(error_message);
+
+    expect(core.error).toHaveBeenCalledWith(error);
+    expect(core.setFailed).toHaveBeenCalledWith(error_message);
   });
 });
 
@@ -110,7 +101,7 @@ describe("run", () => {
     const issues_create_spy = jest.spyOn(issues, "create");
     issues_create_spy.mockResolvedValueOnce(created_source_result);
 
-    jest.spyOn(core, "setOutput").mockImplementationOnce((key, value) => {
+    core.setOutput.mockImplementationOnce((key, value) => {
       expect(key).toBe("count");
       expect(value).toBe(3);
     });
@@ -135,7 +126,7 @@ describe("run", () => {
     const source_read_spy = jest.spyOn(sources, "read");
     source_read_spy.mockRejectedValueOnce("error");
 
-    expect(index.run(false, "sources", "token", "owner", "repo")).rejects.toBe(
+    await expect(index.run(false, "sources", "token", "owner", "repo")).rejects.toBe(
       "error"
     );
 
