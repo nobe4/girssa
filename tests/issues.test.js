@@ -72,6 +72,12 @@ describe("select", () => {
       expected: [],
     },
     {
+      name: "undefined issues doesn't filter at all",
+      items: [{ id: 1 }, { id: 2 }],
+      issues: undefined,
+      expected: [{ id: 1 }, { id: 2 }],
+    },
+    {
       name: "no issues doesn't filter at all",
       items: [{ id: 1 }, { id: 2 }],
       issues: [],

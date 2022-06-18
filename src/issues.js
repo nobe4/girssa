@@ -28,7 +28,10 @@ const self = {
           state: "all",
         })
 
-        .then(({ data }) => resolve(data))
+        .then(({ data }) => {
+          core.debug(`Found ${data.length} issues to filter over`);
+          resolve(data);
+        })
 
         .catch((e) => {
           core.warning("issues.list error");
@@ -49,7 +52,7 @@ const self = {
       core.debug("Filtering the items");
 
       // Bypass if there's no items
-      if (!items || items.length == 0) {
+      if (!items || items.length === 0) {
         resolve([]);
         return;
       }
@@ -58,14 +61,27 @@ const self = {
         .list()
 
         // If the issue has no body, it's never a match.
-        .then((issues) =>
-          issues.filter((issue) => issue.body && issue.body.length != 0)
-        )
+        .then((issues) => {
+          // Undefined/empty issues mean we don't filter at all
+          if (!issues || issues.length === 0) {
+            resolve(items);
+            return;
+          }
+
+          // Keep only issues with a body.
+          const filtered_issues = issues.filter(
+            (issue) => issue.body && issue.body.length != 0
+          );
+
+          // No filtered issues mean we allow all items.
+          if (filtered_issues.length === 0) {
+            resolve(items);
+            return;
+          }
+          return filtered_issues;
+        })
 
         .then((issues) => {
-          // No issues mean we allow all items;
-          if (issues.length == 0) return items;
-
           // Filtering happens here, we're removing all the items that already
           // have their ID in any issue body.
           return items.filter(
