@@ -1,5 +1,5 @@
 const core = require("@actions/core");
-jest.mock('@actions/core')
+jest.mock("@actions/core");
 
 const rss = require("../src/rss.js");
 const github = require("../src/github.js");
@@ -17,7 +17,9 @@ describe("read", () => {
 
     await expect(sources.read("path")).resolves.toBe(sources.noop_sources);
 
-    expect(core.notice).toHaveBeenCalledWith(expect.stringMatching(/\[NOOP\] Reading source file/))
+    expect(core.notice).toHaveBeenCalledWith(
+      expect.stringMatching(/\[NOOP\] Reading source file/)
+    );
   });
 
   it("reads and parse the content correctly", async () => {
@@ -30,7 +32,9 @@ describe("read", () => {
     });
 
     await expect(sources.read("path")).resolves.toStrictEqual({ json: true });
-    expect(core.debug).toHaveBeenCalledWith(expect.stringMatching(/Reading source file/))
+    expect(core.debug).toHaveBeenCalledWith(
+      expect.stringMatching(/Reading source file/)
+    );
   });
 
   it("fails to read", async () => {
@@ -40,7 +44,7 @@ describe("read", () => {
 
     await expect(sources.read("path")).rejects.toStrictEqual("error");
 
-    expect(core.warning).toHaveBeenCalledWith("sources.read error")
+    expect(core.warning).toHaveBeenCalledWith("sources.read error");
   });
 });
 
@@ -57,10 +61,10 @@ describe("filter_results", () => {
 
     expect(sources.filter_results(results)).toStrictEqual(expected);
 
-    expect(core.warning).toHaveBeenCalledWith("Error while processing:")
-    expect(core.warning).toHaveBeenCalledWith("error1")
-    expect(core.warning).toHaveBeenCalledWith("Error while processing:")
-    expect(core.warning).toHaveBeenCalledWith("error2")
+    expect(core.warning).toHaveBeenCalledWith("Error while processing:");
+    expect(core.warning).toHaveBeenCalledWith("error1");
+    expect(core.warning).toHaveBeenCalledWith("Error while processing:");
+    expect(core.warning).toHaveBeenCalledWith("error2");
   });
 });
 
@@ -73,10 +77,8 @@ describe("fetch", () => {
     const source_filter_spy = jest.spyOn(sources, "filter_results");
     source_filter_spy.mockReturnValueOnce("ok");
 
-    const items = [{name:"source1"}, {name:"source2"}]
-    await expect(sources.fetch(items)).resolves.toStrictEqual(
-      "ok"
-    );
+    const items = [{ name: "source1" }, { name: "source2" }];
+    await expect(sources.fetch(items)).resolves.toStrictEqual("ok");
 
     expect(rss_get_spy).toHaveBeenCalledWith(items[0]);
     expect(rss_get_spy).toHaveBeenCalledWith(items[0]);
@@ -85,23 +87,21 @@ describe("fetch", () => {
       { status: "fulfilled", value: ["value1", "value2"] },
       { status: "rejected", reason: ["value3", "value4"] },
     ]);
-    expect(core.debug).toHaveBeenCalledWith(`Processing ${items[0].name}`)
-    expect(core.debug).toHaveBeenCalledWith(`Processing ${items[1].name}`)
+    expect(core.debug).toHaveBeenCalledWith(`Processing ${items[0].name}`);
+    expect(core.debug).toHaveBeenCalledWith(`Processing ${items[1].name}`);
   });
 
   it("rejects if there's an error", async () => {
     const rss_get_spy = jest.spyOn(rss, "get");
     rss_get_spy.mockResolvedValueOnce(["value1", "value2"]);
 
-    const error = new Error("error")
-    jest.spyOn(sources, "filter_results").mockRejectedValueOnce(
-      error
-    )
+    const error = new Error("error");
+    jest.spyOn(sources, "filter_results").mockRejectedValueOnce(error);
 
     await expect(sources.fetch(["source1"])).rejects.toStrictEqual(error);
 
-    expect(core.warning).toHaveBeenCalledWith("sources.fetch error")
-    expect(core.warning).toHaveBeenCalledWith(error)
+    expect(core.warning).toHaveBeenCalledWith("sources.fetch error");
+    expect(core.warning).toHaveBeenCalledWith(error);
   });
 });
 

@@ -1,5 +1,5 @@
 const core = require("@actions/core");
-jest.mock('@actions/core')
+jest.mock("@actions/core");
 
 const fs = require("fs");
 const https = require("https");
@@ -22,7 +22,7 @@ describe("fetch", () => {
 
     await expect(rss.fetch("URL")).rejects.toMatch(/Request Failed/);
 
-    expect(core.debug).toHaveBeenCalledWith("Fetching URL")
+    expect(core.debug).toHaveBeenCalledWith("Fetching URL");
   });
 
   it("reject if the request has an error", async () => {
@@ -42,9 +42,9 @@ describe("fetch", () => {
 
     await expect(rss.fetch("URL")).rejects.toBe(error);
 
-    expect(core.debug).toHaveBeenCalledWith("Fetching URL")
-    expect(core.warning).toHaveBeenCalledWith("rss.fetch error")
-    expect(core.warning).toHaveBeenCalledWith(error)
+    expect(core.debug).toHaveBeenCalledWith("Fetching URL");
+    expect(core.warning).toHaveBeenCalledWith("rss.fetch error");
+    expect(core.warning).toHaveBeenCalledWith(error);
   });
 
   it("reads the body correctly", async () => {
