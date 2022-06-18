@@ -30,10 +30,7 @@ const self = {
           state: "all",
         })
 
-        .then((issues) => {
-          core.debug(`Found ${issues.length} issues to filter over`);
-          resolve(issues);
-        })
+        .then(resolve)
 
         .catch((e) => {
           core.warning("issues.list error");
@@ -139,9 +136,7 @@ const self = {
 
       // Bypass if noop is set
       if (github.noop) {
-        const message = `[NOOP] Created issue for: '${
-          item.title
-        }'\n${JSON.stringify(issue_data)}`;
+        const message = `[NOOP] Created issue for: '${item.title}'`;
         core.notice(message);
         resolve(message);
         return;

@@ -1,3 +1,6 @@
+const core = require("@actions/core");
+jest.mock("@actions/core");
+
 const github = require("../src/github.js");
 const issues = require("../src/issues.js");
 
@@ -10,7 +13,10 @@ beforeEach(() => {
 describe("list", () => {
   it("doesn't list if nooped", async () => {
     github.noop = true;
+
     await expect(issues.list()).resolves.toHaveLength(0);
+
+    expect(core.notice).toHaveBeenCalledWith("[NOOP] List all the issues in owner/repo")
   });
 
   it("lists all the issues", async () => {
@@ -29,6 +35,7 @@ describe("list", () => {
       repo: "repo",
       state: "all",
     });
+    expect(core.debug).toHaveBeenCalledWith("List all the issues in owner/repo")
   });
 
   it("fails to list the issues", async () => {
@@ -39,23 +46,26 @@ describe("list", () => {
       rest: { issues: { listForRepo: list_spy } },
     };
 
-    const error = { stack: "the stack" };
+    const error = new Error("error")
     paginate_spy.mockRejectedValueOnce(error);
 
     await expect(issues.list()).rejects.toStrictEqual(error);
+
     expect(paginate_spy).toHaveBeenCalledWith(list_spy, {
       owner: "owner",
       repo: "repo",
       state: "all",
     });
+    expect(core.warning).toHaveBeenCalledWith("issues.list error")
+    expect(core.warning).toHaveBeenCalledWith(error)
   });
 });
 
 describe("select", () => {
-  it("catch correctly", () => {
+  it("catch correctly", async () => {
     jest.spyOn(issues, "list").mockRejectedValueOnce("error");
 
-    expect(issues.select("whatever")).rejects.toStrictEqual("error");
+    await expect(issues.select("whatever")).rejects.toStrictEqual("error");
   });
 
   [
@@ -187,12 +197,14 @@ describe("create_one", () => {
     labels: ["name"],
   };
 
-  it("doesn't create if nooped", () => {
+  it("doesn't create if nooped", async () => {
     github.noop = true;
 
-    expect(issues.create_one(item)).resolves.toMatch(
+    await expect(issues.create_one(item)).resolves.toMatch(
       "[NOOP] Created issue for: 'title'"
     );
+
+    expect(core.notice).toHaveBeenCalledWith("[NOOP] Created issue for: 'title'")
   });
 
   it("create an issue from the item correctly", async () => {
@@ -212,6 +224,7 @@ describe("create_one", () => {
 
     expect(format_body_spy).toHaveBeenCalledWith(item);
     expect(create_spy).toHaveBeenCalledWith(issue_data);
+    expect(core.notice).toHaveBeenCalledWith("html_url => title")
   });
 
   it("fails to create an issue", async () => {
@@ -229,6 +242,11 @@ describe("create_one", () => {
 
     expect(format_body_spy).toHaveBeenCalledWith(item);
     expect(create_spy).toHaveBeenCalledWith(issue_data);
+    expect(core.warning).toHaveBeenCalledWith(
+      expect.stringMatching(
+      "Error creating issue for: 'title'\nError: error"
+      )
+    )
   });
 });
 

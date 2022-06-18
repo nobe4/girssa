@@ -18,7 +18,7 @@ describe("read", () => {
     await expect(sources.read("path")).resolves.toBe(sources.noop_sources);
 
     expect(core.notice).toHaveBeenCalledWith(
-      expect.stringMatching(/\[NOOP\] Reading source file/)
+      "[NOOP] Reading source file owner/repo/path"
     );
   });
 
@@ -32,9 +32,8 @@ describe("read", () => {
     });
 
     await expect(sources.read("path")).resolves.toStrictEqual({ json: true });
-    expect(core.debug).toHaveBeenCalledWith(
-      expect.stringMatching(/Reading source file/)
-    );
+
+    expect(core.debug).toHaveBeenCalledWith("Reading source file owner/repo/path");
   });
 
   it("fails to read", async () => {
