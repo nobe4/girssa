@@ -24,11 +24,18 @@ const self = {
       core.debug(`List all the issues in ${github.owner}/${github.repo}`);
 
       github.client
-        .paginate(github.client.rest.issues.listForRepo, {
-          owner: github.owner,
-          repo: github.repo,
-          state: "all",
-        })
+        .paginate(
+          github.client.rest.issues.listForRepo,
+          {
+            owner: github.owner,
+            repo: github.repo,
+            state: "all",
+          },
+          (response) => {
+            core.debug(response);
+            return response.data;
+          }
+        )
 
         .then((issues) => {
           core.debug(`Found ${issues.length} issues to filter over`);
