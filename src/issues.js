@@ -152,7 +152,7 @@ const self = {
         .create(issue_data)
 
         .then(({ data }) => {
-          const message = `Created issue for: '${item.title}'\n${data.html_url}`;
+          const message = `${data.html_url} => ${item.title}`;
           core.notice(message);
           resolve(message);
         })
