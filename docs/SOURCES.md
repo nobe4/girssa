@@ -20,8 +20,14 @@ See https://github.com/nobe4/girssa/issues/28
 
 ## Youtube
 
-> TODO
-https://webapps.stackexchange.com/a/116549
+1. Go to the channel's page (i.e. [github](https://www.youtube.com/c/GitHub)).
+2. Run the following script from the console.
+
+```
+`https://www.youtube.com/feeds/videos.xml?channel_id=${ytInitialData.metadata.channelMetadataRenderer.externalId}`
+```
+
+_Note: this data is present in the HTTP request, i.e. using `curl https://www.youtube.com/c/GitHub`, so it would be possible to automate it_
 
 ## Twitter
 
@@ -34,3 +40,7 @@ E.g.
 Retrying is usually the easiest fix.
 
 A better way might be to loop through the [instance list](https://github.com/zedeus/nitter/wiki/Instances).
+
+## Other?
+
+> Open for contributions!
