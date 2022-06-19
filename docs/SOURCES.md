@@ -34,7 +34,7 @@ _Note: this data is present in the HTTP request, i.e. using `curl https://www.yo
 Use `https://nitter.net/<account>/rss`
 
 E.g.
-  `https://twitter.com/github` => `https://nitter.net/github/rss`
+`https://twitter.com/github` => `https://nitter.net/github/rss`
 
 :information_source: `nitter.net` doesn't have perfect reliability and fetching might fail.
 Retrying is usually the easiest fix.
