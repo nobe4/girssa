@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title></title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css"
+    />
+  </head>
+
+  <body class="container">
+    <main>
+      <!-- List issues -->
+      <table x-data>
+        <template x-for="issue in $store.issues.list">
+          <tr>
+            <td x-text="issue.title"></td>
+            <td x-text="issue.labels.map(l => l.name).join(' ')"></td>
+            <td>
+              <a :href="issue.html_url" target="_blank">Issue</a>
+            </td>
+          </tr>
+        </template>
+      </table>
+    </main>
+
+    <script type="module">
+      // TODO inject this
+      const token = "XXX";
+      const repository = "YYY";
+
+      import { Octokit, App } from "https://cdn.skypack.dev/octokit";
+      import Alpine from "https://cdn.skypack.dev/alpinejs";
+
+      const octokit = new Octokit({ auth: token });
+      const [owner, repo] = repository.split("/");
+
+      window.Alpine = Alpine;
+
+      Alpine.store("issues", {
+        list: [],
+        set(list) {
+          this.list = list;
+        },
+      });
+
+      Alpine.start();
+
+      console.log("fetching issues");
+      octokit
+        .paginate(octokit.rest.issues.listForRepo, {
+          owner: owner,
+          repo: repo,
+          state: "all",
+        })
+        .then((issues) =>
+          issues.filter(
+            (issue) =>
+              issue.body &&
+              issue.body.length != 0 &&
+              issue.pull_request === undefined
+          )
+        )
+        .then((fetched) => {
+          Alpine.store("issues").set(fetched);
+        })
+        .catch(console.error);
+    </script>
+  </body>
+</html>
