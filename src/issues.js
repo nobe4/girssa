@@ -1,5 +1,6 @@
 // Handle interactions with github issues
 
+const { setTimeout } = require("timers/promises");
 const core = require("@actions/core");
 const github = require("./github.js");
 
@@ -40,47 +41,57 @@ const self = {
     });
   },
 
+  // list_filtering_issues list all the issues relevant for filtering the items.
+  // It calls issues.list() and applies some filtering
+  //
+  // @return {Promise} - Resolve with the list of selected issues to filter with.
+  //                     Reject with any error that occured.
+  list_filtering_issues() {
+    return new Promise((resolve, reject) => {
+      self
+        .list()
+        .then((issues) =>
+          issues.filter(
+            (issue) =>
+              // Keep only issues with a body.
+              issue.body &&
+              issue.body.length != 0 &&
+              // Keep issues that are not pull requests
+              // Pull requests have an extra key for PR-related info
+              issue.pull_request === undefined
+          )
+        )
+        .then(resolve)
+        .catch(reject);
+    });
+  },
+
   // select filter in all the items that needs to be created
   //
   // @param {array} items - List of items to be filtered.
   //                        The issues will be fetched via self.list().
   //
-  // @return {array} - List of items that needs to be added in issues.
+  // @return {Promise} - Resolve with the list of selected items.
+  //                     Reject with any error that occured.
   select(items) {
     return new Promise((resolve, reject) => {
       core.debug("Filtering the items");
 
-      // Bypass if there's no items
+      // Bypass if there's no item.
       if (!items || items.length === 0) {
         resolve([]);
         return;
       }
 
       self
-        .list()
+        .list_filtering_issues()
 
-        // If the issue has no body, it's never a match.
         .then((issues) => {
-          // Undefined/empty issues mean we don't filter at all
+          // Bypass if there's no issue to filter with.
           if (!issues || issues.length === 0) {
-            resolve(items);
-            return;
+            return items;
           }
 
-          // Keep only issues with a body.
-          const filtered_issues = issues.filter(
-            (issue) => issue.body && issue.body.length != 0
-          );
-
-          // No filtered issues mean we allow all items.
-          if (filtered_issues.length === 0) {
-            resolve(items);
-            return;
-          }
-          return filtered_issues;
-        })
-
-        .then((issues) => {
           // Filtering happens here, we're removing all the items that already
           // have their ID in any issue body.
           return items.filter(
@@ -119,12 +130,17 @@ const self = {
   // create creates a new issue for the rss item.
   // https://octokit.github.io/rest.js/v18#issues-create
   //
+  // Using a `delay` value to prevent hitting the HTTP Rate Limit.
+  // https://docs.github.com/en/rest/guides/best-practices-for-integrators#dealing-with-secondary-rate-limits
+  //
   // @param {object} item - Item to create the issue with.
   //                        See rss.parse_item for format.
+  // @param {integer} delay - Delay to wait before running the command, in seconds.
+  //                          See issues.create for details on how this is passed.
   //
   // @return {Promise} - Resolve with the list of fetched issues.
   //                     Reject with any error that occured.
-  create_one(item) {
+  create_one(item, delay) {
     return new Promise((resolve) => {
       const issue_data = {
         owner: github.owner,
@@ -142,9 +158,16 @@ const self = {
         return;
       }
 
-      github.client.rest.issues
+      core.debug(
+        `Waiting ${delay} seconds before creating an issue for ${item.title}`
+      );
 
-        .create(issue_data)
+      // setTimeout takes a delay in milliseconds.
+      delay *= 1000;
+
+      // setTimeout takes the value to pass upon resolution as 2nd argument.
+      setTimeout(delay, issue_data)
+        .then(github.client.rest.issues.create)
 
         .then(({ data }) => {
           const message = `${data.html_url} => ${item.title}`;
@@ -175,6 +198,11 @@ const self = {
       self
         .select(items)
 
+        // There's some magic here that warrants a comment.
+        // [].map will call the callback with the item and its index.
+        // We can use the index as a "delay" value as to not hit the HTTP Rate limit.
+        // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+        // See issues.create_one for details.
         .then((items) => Promise.allSettled(items.map(self.create_one)))
 
         // Return only the values, all the results should be fulfilled.

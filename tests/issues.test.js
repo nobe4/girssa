@@ -1,6 +1,9 @@
 const core = require("@actions/core");
 jest.mock("@actions/core");
 
+const { setTimeout } = require("timers/promises");
+jest.mock("timers/promises");
+
 const github = require("../src/github.js");
 const issues = require("../src/issues.js");
 
@@ -65,6 +68,49 @@ describe("list", () => {
   });
 });
 
+describe("list_filtering_issues", () => {
+  it("catch correctly", async () => {
+    jest.spyOn(issues, "list").mockRejectedValueOnce("error");
+
+    await expect(issues.select("whatever")).rejects.toStrictEqual("error");
+  });
+
+  [
+    {
+      name: "no issues means no issues",
+      issues: [],
+      expected: [],
+    },
+    {
+      name: "remove issues without body",
+      issues: [{ no_body: true }],
+      expected: [],
+    },
+    {
+      name: "issues without the id in a body don't filter",
+      issues: [{ body: "body" }],
+      expected: [{ body: "body" }],
+    },
+    {
+      name: "issues with the pull_request, but no value",
+      issues: [{ body: "body" }, { body: "body", pull_request: undefined }],
+      expected: [{ body: "body" }, { body: "body", pull_request: undefined }],
+    },
+    {
+      name: "issues with pull_request key defined",
+      issues: [{ body: "body" }, { body: "body", pull_request: "true" }],
+      expected: [{ body: "body" }],
+    },
+  ].forEach((test) => {
+    it(`works for ${test.name}`, async () => {
+      issues.list = jest.fn().mockResolvedValueOnce(test.issues);
+      await expect(issues.list_filtering_issues()).resolves.toStrictEqual(
+        test.expected
+      );
+    });
+  });
+});
+
 describe("select", () => {
   it("catch correctly", async () => {
     jest.spyOn(issues, "list").mockRejectedValueOnce("error");
@@ -95,12 +141,6 @@ describe("select", () => {
       name: "no issues doesn't filter at all",
       items: [{ id: 1 }, { id: 2 }],
       issues: [],
-      expected: [{ id: 1 }, { id: 2 }],
-    },
-    {
-      name: "issues without body don't filter",
-      items: [{ id: 1 }, { id: 2 }],
-      issues: [{ no_body: true }],
       expected: [{ id: 1 }, { id: 2 }],
     },
     {
@@ -146,7 +186,9 @@ describe("select", () => {
     },
   ].forEach((test) => {
     it(`works for ${test.name}`, async () => {
-      issues.list = jest.fn().mockResolvedValueOnce(test.issues);
+      issues.list_filtering_issues = jest
+        .fn()
+        .mockResolvedValueOnce(test.issues);
       await expect(issues.select(test.items)).resolves.toStrictEqual(
         test.expected
       );
@@ -201,10 +243,12 @@ describe("create_one", () => {
     labels: ["name"],
   };
 
+  setTimeout.mockResolvedValue(issue_data);
+
   it("doesn't create if nooped", async () => {
     github.noop = true;
 
-    await expect(issues.create_one(item)).resolves.toMatch(
+    await expect(issues.create_one(item, 0)).resolves.toMatch(
       "[NOOP] Created issue for: 'title'"
     );
 
@@ -226,11 +270,15 @@ describe("create_one", () => {
     const format_body_spy = jest.spyOn(issues, "format_body");
     format_body_spy.mockReturnValueOnce("body");
 
-    await expect(issues.create_one(item)).resolves.toBe("html_url => title");
+    await expect(issues.create_one(item, 0)).resolves.toBe("html_url => title");
 
     expect(format_body_spy).toHaveBeenCalledWith(item);
+    expect(core.debug).toHaveBeenCalledWith(
+      "Waiting 0 seconds before creating an issue for title"
+    );
     expect(create_spy).toHaveBeenCalledWith(issue_data);
     expect(core.notice).toHaveBeenCalledWith("html_url => title");
+    expect(setTimeout).toHaveBeenCalledWith(0, issue_data);
   });
 
   it("fails to create an issue", async () => {
@@ -242,15 +290,19 @@ describe("create_one", () => {
     const format_body_spy = jest.spyOn(issues, "format_body");
     format_body_spy.mockReturnValueOnce("body");
 
-    await expect(issues.create_one(item)).resolves.toMatch(
+    await expect(issues.create_one(item, 1)).resolves.toMatch(
       "Error creating issue for: 'title'\nError: error"
     );
 
     expect(format_body_spy).toHaveBeenCalledWith(item);
     expect(create_spy).toHaveBeenCalledWith(issue_data);
+    expect(core.debug).toHaveBeenCalledWith(
+      "Waiting 1 seconds before creating an issue for title"
+    );
     expect(core.warning).toHaveBeenCalledWith(
       expect.stringMatching("Error creating issue for: 'title'\nError: error")
     );
+    expect(setTimeout).toHaveBeenCalledWith(1000, issue_data);
   });
 });
 
