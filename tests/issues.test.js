@@ -234,6 +234,9 @@ describe("create_one", () => {
     await expect(issues.create_one(item, 0)).resolves.toBe("html_url => title");
 
     expect(format_body_spy).toHaveBeenCalledWith(item);
+    expect(core.debug).toHaveBeenCalledWith(
+      "Waiting 0 seconds before creating an issue for title"
+    );
     expect(create_spy).toHaveBeenCalledWith(issue_data);
     expect(core.notice).toHaveBeenCalledWith("html_url => title");
     expect(setTimeout).toHaveBeenCalledWith(0, issue_data);
@@ -254,6 +257,9 @@ describe("create_one", () => {
 
     expect(format_body_spy).toHaveBeenCalledWith(item);
     expect(create_spy).toHaveBeenCalledWith(issue_data);
+    expect(core.debug).toHaveBeenCalledWith(
+      "Waiting 1 seconds before creating an issue for title"
+    );
     expect(core.warning).toHaveBeenCalledWith(
       expect.stringMatching("Error creating issue for: 'title'\nError: error")
     );

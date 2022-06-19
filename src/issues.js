@@ -125,8 +125,8 @@ const self = {
   //
   // @param {object} item - Item to create the issue with.
   //                        See rss.parse_item for format.
-  // @param {integer} delay - Delay to wait before running the command.
-  //                          See issues.create for details.
+  // @param {integer} delay - Delay to wait before running the command, in seconds.
+  //                          See issues.create for details on how this is passed.
   //
   // @return {Promise} - Resolve with the list of fetched issues.
   //                     Reject with any error that occured.
@@ -149,10 +149,10 @@ const self = {
       }
 
       core.debug(
-        `Waiting ${delay} seconds before creating and issue for ${item.title}`
+        `Waiting ${delay} seconds before creating an issue for ${item.title}`
       );
 
-      // Delay is in milliseconds
+      // setTimeout takes a delay in milliseconds.
       delay *= 1000;
 
       // setTimeout takes the value to pass upon resolution as 2nd argument.
