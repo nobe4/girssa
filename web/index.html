@@ -9,26 +9,38 @@
     />
   </head>
 
-  <body class="container">
+  <body class="container" x-data>
     <main>
-      <!-- List issues -->
-      <table x-data>
-        <template x-for="issue in $store.issues.list">
-          <tr>
-            <td x-text="issue.title"></td>
-            <td x-text="issue.labels.map(l => l.name).join(' ')"></td>
-            <td>
-              <a :href="issue.html_url" target="_blank">Issue</a>
-            </td>
-          </tr>
+      <p>
+        <template x-if="$store.issues.list.length == 0">
+          Loading <i aria-busy="true"></i>
         </template>
-      </table>
+
+        <template x-if="$store.issues.list.length > 0">
+          <span><span x-text="$store.issues.list.length"></span> issues</span>
+        </template>
+
+        <details>
+          <summary>logs</summary>
+          <pre x-text="$store.issues.logs.join('\n')"></pre>
+        </details>
+      </p>
+
+      <template x-for="issue in $store.issues.list">
+        <details>
+          <summary x-text="issue.title"></summary>
+          <a href="#" role="button" x-on:click="$store.issues.close(issue)"
+            >Close</a
+          >
+          <div x-html="issue.body"></div>
+        </details>
+      </template>
     </main>
 
     <script type="module">
       // TODO inject this
       const token = "XXX";
-      const repository = "YYY";
+      const repository = "XXX";
 
       import { Octokit, App } from "https://cdn.skypack.dev/octokit";
       import Alpine from "https://cdn.skypack.dev/alpinejs";
@@ -40,32 +52,44 @@
 
       Alpine.store("issues", {
         list: [],
+        logs: [],
+        fetch() {
+          octokit
+            .paginate(octokit.rest.issues.listForRepo, {
+              owner: owner,
+              repo: repo,
+              state: "all",
+            })
+            .then((issues) =>
+              issues.filter(
+                (issue) =>
+                  issue.body &&
+                  issue.body.length != 0 &&
+                  issue.pull_request === undefined
+              )
+            )
+            .then((list) => {
+              this.list = list;
+              this.logs.push("items loaded");
+            })
+            .catch((e) => {
+              this.logs.push(`[E] ${e}`);
+            });
+        },
+
         set(list) {
           this.list = list;
+        },
+
+        close(issue) {
+          console.log(issue);
         },
       });
 
       Alpine.start();
 
       console.log("fetching issues");
-      octokit
-        .paginate(octokit.rest.issues.listForRepo, {
-          owner: owner,
-          repo: repo,
-          state: "all",
-        })
-        .then((issues) =>
-          issues.filter(
-            (issue) =>
-              issue.body &&
-              issue.body.length != 0 &&
-              issue.pull_request === undefined
-          )
-        )
-        .then((fetched) => {
-          Alpine.store("issues").set(fetched);
-        })
-        .catch(console.error);
+      Alpine.store("issues").fetch();
     </script>
   </body>
 </html>
