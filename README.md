@@ -62,7 +62,7 @@ See [`sources`](./docs/SOURCES.md)
 
 You can configure Girssa with some options, see [`action.yml`](./action.yml) for details.
 
-Example:
+E.g.:
 
 ```yaml
 jobs:

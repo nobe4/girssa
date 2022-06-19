@@ -1,6 +1,6 @@
 # Sources
 
-The sources are configured with a JSON file, whose name [defaults to `sources.json`](../action.yaml).
+The sources are configured with a JSON file, whose name [defaults to `sources.json`](../action.yml).
 
 It expects an array of objects with at least the following keys:
 
@@ -14,20 +14,20 @@ See [`sources.example.json`](./sources.example.json) for an example.
 
 :information_source: You currently need to do this yourself.
 
-It will be automated at some point.
+It might be automated at some point.
 
 See https://github.com/nobe4/girssa/issues/28
 
 ## Youtube
 
-1. Go to the channel's page (i.e. [github](https://www.youtube.com/c/GitHub)).
+1. Go to the channel's page, i.e. [GitHub](https://www.youtube.com/c/GitHub).
 2. Run the following script from the console.
 
 ```
 `https://www.youtube.com/feeds/videos.xml?channel_id=${ytInitialData.metadata.channelMetadataRenderer.externalId}`
 ```
 
-_Note: this data is present in the HTTP request, i.e. using `curl https://www.youtube.com/c/GitHub`, so it would be possible to automate it_
+_Note: this data is present in the HTTP request, i.e. using `curl https://www.youtube.com/c/GitHub`, it is possible to automate it._
 
 ## Twitter
 
@@ -36,10 +36,10 @@ Use `https://nitter.net/<account>/rss`
 E.g.
   `https://twitter.com/github` => `https://nitter.net/github/rss`
 
-:information_source: `nitter.net` doesn't have perfect reliability, so fetching migh fail.
+:information_source: `nitter.net` doesn't have perfect reliability and fetching might fail.
 Retrying is usually the easiest fix.
 
-A better way might be to loop through the [instance list](https://github.com/zedeus/nitter/wiki/Instances).
+A better way is be to loop through the [instance list](https://github.com/zedeus/nitter/wiki/Instances).
 
 ## Other?
 
