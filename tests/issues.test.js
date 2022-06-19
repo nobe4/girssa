@@ -1,6 +1,9 @@
 const core = require("@actions/core");
 jest.mock("@actions/core");
 
+const { setTimeout } = require("timers/promises");
+jest.mock("timers/promises");
+
 const github = require("../src/github.js");
 const issues = require("../src/issues.js");
 
@@ -201,10 +204,12 @@ describe("create_one", () => {
     labels: ["name"],
   };
 
+  setTimeout.mockResolvedValue(issue_data);
+
   it("doesn't create if nooped", async () => {
     github.noop = true;
 
-    await expect(issues.create_one(item)).resolves.toMatch(
+    await expect(issues.create_one(item, 0)).resolves.toMatch(
       "[NOOP] Created issue for: 'title'"
     );
 
@@ -226,11 +231,12 @@ describe("create_one", () => {
     const format_body_spy = jest.spyOn(issues, "format_body");
     format_body_spy.mockReturnValueOnce("body");
 
-    await expect(issues.create_one(item)).resolves.toBe("html_url => title");
+    await expect(issues.create_one(item, 0)).resolves.toBe("html_url => title");
 
     expect(format_body_spy).toHaveBeenCalledWith(item);
     expect(create_spy).toHaveBeenCalledWith(issue_data);
     expect(core.notice).toHaveBeenCalledWith("html_url => title");
+    expect(setTimeout).toHaveBeenCalledWith(0, issue_data);
   });
 
   it("fails to create an issue", async () => {
@@ -242,7 +248,7 @@ describe("create_one", () => {
     const format_body_spy = jest.spyOn(issues, "format_body");
     format_body_spy.mockReturnValueOnce("body");
 
-    await expect(issues.create_one(item)).resolves.toMatch(
+    await expect(issues.create_one(item, 1)).resolves.toMatch(
       "Error creating issue for: 'title'\nError: error"
     );
 
@@ -251,6 +257,7 @@ describe("create_one", () => {
     expect(core.warning).toHaveBeenCalledWith(
       expect.stringMatching("Error creating issue for: 'title'\nError: error")
     );
+    expect(setTimeout).toHaveBeenCalledWith(1000, issue_data);
   });
 });
 

@@ -1,5 +1,6 @@
 // Handle interactions with github issues
 
+const { setTimeout } = require("timers/promises");
 const core = require("@actions/core");
 const github = require("./github.js");
 
@@ -119,12 +120,17 @@ const self = {
   // create creates a new issue for the rss item.
   // https://octokit.github.io/rest.js/v18#issues-create
   //
+  // Using a `delay` value to prevent hitting the HTTP Rate Limit.
+  // https://docs.github.com/en/rest/guides/best-practices-for-integrators#dealing-with-secondary-rate-limits
+  //
   // @param {object} item - Item to create the issue with.
   //                        See rss.parse_item for format.
+  // @param {integer} delay - Delay to wait before running the command.
+  //                          See issues.create for details.
   //
   // @return {Promise} - Resolve with the list of fetched issues.
   //                     Reject with any error that occured.
-  create_one(item) {
+  create_one(item, delay) {
     return new Promise((resolve) => {
       const issue_data = {
         owner: github.owner,
@@ -142,9 +148,16 @@ const self = {
         return;
       }
 
-      github.client.rest.issues
+      core.debug(
+        `Waiting ${delay} seconds before creating and issue for ${item.title}`
+      );
 
-        .create(issue_data)
+      // Delay is in milliseconds
+      delay *= 1000;
+
+      // setTimeout takes the value to pass upon resolution as 2nd argument.
+      setTimeout(delay, issue_data)
+        .then(github.client.rest.issues.create)
 
         .then(({ data }) => {
           const message = `${data.html_url} => ${item.title}`;
@@ -175,6 +188,11 @@ const self = {
       self
         .select(items)
 
+        // There's some magic here that warrants a comment.
+        // [].map will call the callback with the item and its index.
+        // We can use the index as a "delay" value as to not hit the HTTP Rate limit.
+        // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+        // See issues.create_one for details.
         .then((items) => Promise.allSettled(items.map(self.create_one)))
 
         // Return only the values, all the results should be fulfilled.
