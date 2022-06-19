@@ -41,47 +41,57 @@ const self = {
     });
   },
 
+  // list_filtering_issues list all the issues relevant for filtering the items.
+  // It calls issues.list() and applies some filtering
+  //
+  // @return {Promise} - Resolve with the list of selected issues to filter with.
+  //                     Reject with any error that occured.
+  list_filtering_issues() {
+    return new Promise((resolve, reject) => {
+      self
+        .list()
+        .then((issues) =>
+          issues.filter(
+            (issue) =>
+              // Keep only issues with a body.
+              issue.body &&
+              issue.body.length != 0 &&
+              // Keep issues that are not pull requests
+              // Pull requests have an extra key for PR-related info
+              issue.pull_request === undefined
+          )
+        )
+        .then(resolve)
+        .catch(reject);
+    });
+  },
+
   // select filter in all the items that needs to be created
   //
   // @param {array} items - List of items to be filtered.
   //                        The issues will be fetched via self.list().
   //
-  // @return {array} - List of items that needs to be added in issues.
+  // @return {Promise} - Resolve with the list of selected items.
+  //                     Reject with any error that occured.
   select(items) {
     return new Promise((resolve, reject) => {
       core.debug("Filtering the items");
 
-      // Bypass if there's no items
+      // Bypass if there's no item.
       if (!items || items.length === 0) {
         resolve([]);
         return;
       }
 
       self
-        .list()
+        .list_filtering_issues()
 
-        // If the issue has no body, it's never a match.
         .then((issues) => {
-          // Undefined/empty issues mean we don't filter at all
+          // Bypass if there's no issue to filter with.
           if (!issues || issues.length === 0) {
-            resolve(items);
-            return;
+            return items;
           }
 
-          // Keep only issues with a body.
-          const filtered_issues = issues.filter(
-            (issue) => issue.body && issue.body.length != 0
-          );
-
-          // No filtered issues mean we allow all items.
-          if (filtered_issues.length === 0) {
-            resolve(items);
-            return;
-          }
-          return filtered_issues;
-        })
-
-        .then((issues) => {
           // Filtering happens here, we're removing all the items that already
           // have their ID in any issue body.
           return items.filter(

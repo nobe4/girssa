@@ -68,6 +68,49 @@ describe("list", () => {
   });
 });
 
+describe("list_filtering_issues", () => {
+  it("catch correctly", async () => {
+    jest.spyOn(issues, "list").mockRejectedValueOnce("error");
+
+    await expect(issues.select("whatever")).rejects.toStrictEqual("error");
+  });
+
+  [
+    {
+      name: "no issues means no issues",
+      issues: [],
+      expected: [],
+    },
+    {
+      name: "remove issues without body",
+      issues: [{ no_body: true }],
+      expected: [],
+    },
+    {
+      name: "issues without the id in a body don't filter",
+      issues: [{ body: "body" }],
+      expected: [{ body: "body" }],
+    },
+    {
+      name: "issues with the pull_request, but no value",
+      issues: [{ body: "body" }, { body: "body", pull_request: undefined }],
+      expected: [{ body: "body" }, { body: "body", pull_request: undefined }],
+    },
+    {
+      name: "issues with pull_request key defined",
+      issues: [{ body: "body" }, { body: "body", pull_request: "true" }],
+      expected: [{ body: "body" }],
+    },
+  ].forEach((test) => {
+    it(`works for ${test.name}`, async () => {
+      issues.list = jest.fn().mockResolvedValueOnce(test.issues);
+      await expect(issues.list_filtering_issues()).resolves.toStrictEqual(
+        test.expected
+      );
+    });
+  });
+});
+
 describe("select", () => {
   it("catch correctly", async () => {
     jest.spyOn(issues, "list").mockRejectedValueOnce("error");
@@ -98,12 +141,6 @@ describe("select", () => {
       name: "no issues doesn't filter at all",
       items: [{ id: 1 }, { id: 2 }],
       issues: [],
-      expected: [{ id: 1 }, { id: 2 }],
-    },
-    {
-      name: "issues without body don't filter",
-      items: [{ id: 1 }, { id: 2 }],
-      issues: [{ no_body: true }],
       expected: [{ id: 1 }, { id: 2 }],
     },
     {
@@ -149,7 +186,9 @@ describe("select", () => {
     },
   ].forEach((test) => {
     it(`works for ${test.name}`, async () => {
-      issues.list = jest.fn().mockResolvedValueOnce(test.issues);
+      issues.list_filtering_issues = jest
+        .fn()
+        .mockResolvedValueOnce(test.issues);
       await expect(issues.select(test.items)).resolves.toStrictEqual(
         test.expected
       );
