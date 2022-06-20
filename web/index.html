@@ -133,13 +133,12 @@
 
       const { rest, paginate } = new Octokit({ auth: token });
       const [owner, repo] = repository.split("/");
-
-      window.Alpine = Alpine; // Used for debugging
+      let store = undefined;
 
       document.addEventListener("keyup", function (event) {
-        event.code === "KeyJ" && Alpine.store("issues").move(1);
-        event.code === "KeyK" && Alpine.store("issues").move(-1);
-        event.code === "KeyC" && Alpine.store("issues").toggle_open();
+        event.code === "KeyJ" && store.move(1);
+        event.code === "KeyK" && store.move(-1);
+        event.code === "KeyC" && store.toggle_open();
       });
 
       Alpine.store("issues", {
@@ -150,6 +149,8 @@
 
         init() {
           this.fetch();
+          store = this; // easier reference outside of this.
+          window.Alpine = Alpine; // Used for debugging.
         },
 
         // TODO: Implement opening the original link.
