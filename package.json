@@ -1,16 +1,19 @@
 {
   "name": "girssa",
-  "version": "v1.0.0",
+  "version": "v1.0.1",
   "description": "GitHub RSS Action",
   "main": "src/index.js",
   "scripts": {
+    "debug": "node --inspect",
     "fix": "npx prettier --ignore-path .eslintignore --write .",
     "lint": "npx eslint .",
-    "build": "NODE_OPTIONS=--no-experimental-fetch npx ncc --debug build --minify --out dist --source-map --license licenses.txt src/index.js ",
     "test": "npx jest --clearMocks",
     "test-debug": "node --inspect $(npm bin)/jest --clearMocks",
-    "debug": "node --inspect",
     "coverage": "npx jest --clearMocks --coverage",
+    "web-all": "npm run fix && npm run build-web",
+    "build-action": "NODE_OPTIONS=--no-experimental-fetch npx ncc --debug build --minify --out dist --source-map --license licenses.txt src/index.js ",
+    "build-web": "npx html-minifier-terser -c web/html-minify-conf.json web/index.html -o web/index.min.html",
+    "build": "npm run build-action && npm run build-web",
     "all": "npm run fix && npm run lint && npm run coverage && npm run build"
   },
   "repository": {
@@ -38,6 +41,7 @@
     "eslint": "^8.0.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "html-minifier-terser": "^7.0.0-beta.0",
     "jest": "^28.1.0",
     "prettier": "2.7.1"
   },
