@@ -22,12 +22,12 @@
         opacity: 100%;
       }
 
-      button.open {
+      button.red {
         background-color: red;
         color: white;
       }
 
-      button.closed {
+      button.green {
         background-color: green;
         color: white;
       }
@@ -62,7 +62,11 @@
     -->
 
     <main>
-      <div>
+      <!--
+          x-effect here calls fetch whenever the x-model below changes.
+          It ensures that we run fetch *after* filter.open changes.
+        -->
+      <nav x-effect="$store.issues.fetch()">
         <span x-show="$store.issues.loading"> &#9203; Loading </span>
 
         <span x-show="!$store.issues.loading">
@@ -72,11 +76,7 @@
 
         &nbsp;
 
-        <!--
-          x-effect here calls fetch whenever the x-model below changes.
-          It ensures that we run fetch *after* filter.open changes.
-        -->
-        <label x-effect="$store.issues.fetch()" for="open">
+        <label for="open">
           <input
             type="checkbox"
             id="open"
@@ -87,8 +87,15 @@
 
         &nbsp;
 
+        <template x-for="label in $store.issues.filter.labels">
+          <button
+            @click.prevent="$store.issues.toggle_label(label)"
+            x-text="label"
+          ></button>
+        </template>
+
         <span x-text="JSON.stringify($store.issues.filter)"></span>
-      </div>
+      </nav>
 
       <template x-for="issue in $store.issues.list">
         <details :class="{closed: issue.state === 'closed'}">
@@ -99,16 +106,16 @@
                 done in toggle_open based on the current issue.
               -->
               <button
-                :class="issue.state"
+                :class="issue.state === 'open' ? 'red': 'green' "
                 @click.prevent="$store.issues.toggle_open(issue)"
-                x-text="issue.state == 'open' ? '&minus;' : '&plus;'"
+                x-text="issue.state == 'open' ? '-' : '+'"
               ></button>
 
               &nbsp;
 
               <template x-for="label in issue.labels">
                 <button
-                  @click.prevent="$store.issues.filter_by_label(label.name)"
+                  @click.prevent="$store.issues.toggle_label(label.name)"
                   x-text="label.name"
                 ></button>
               </template>
@@ -212,8 +219,14 @@
             .finally(() => (this.loading = false));
         },
 
-        filter_by_label(label) {
-          console.log(`TODO, filter by label ${label}`);
+        toggle_label(label) {
+          var i = this.filter.labels.indexOf(label);
+
+          if (i === -1) {
+            this.filter.labels.push(label);
+          } else {
+            this.filter.labels.splice(i, 1);
+          }
         },
 
         // toggle_open switch the issue's state and updates via the GitHub API.
