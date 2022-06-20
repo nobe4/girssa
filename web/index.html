@@ -69,7 +69,7 @@
     <main>
       <!--
           x-effect here calls fetch whenever the x-model below changes.
-          It ensures that we run fetch *after* filter.open changes.
+          It ensures that we run fetch *after* the state change.
         -->
       <nav x-effect="$store.issues.fetch()">
         <span x-show="$store.issues.loading"> &#9203; Loading </span>
