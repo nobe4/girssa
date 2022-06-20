@@ -219,6 +219,9 @@
             .finally(() => (this.loading = false));
         },
 
+        // toggle_label adds or removes a label from the filter list.
+        //
+        // @param {string} label - Label string value to toggle.
         toggle_label(label) {
           var i = this.filter.labels.indexOf(label);
 
