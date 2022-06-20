@@ -48,6 +48,11 @@
       label {
         cursor: pointer;
       }
+
+      details > div > table {
+        font-size: 1.2em;
+        width: 100%;
+      }
     </style>
   </head>
 
@@ -128,7 +133,7 @@
             issue.body is unsafe and can lead to XSS.
             Sanitizing it is required if x-html is used.
           -->
-          <div x-html="$store.issues.sanitize(issue.body)"></div>
+          <div x-html="$store.issues.render_body(issue.body)"></div>
         </details>
       </template>
     </main>
@@ -138,6 +143,7 @@
       import { Octokit } from "https://cdn.skypack.dev/@octokit/rest";
       import { paginateRest } from "https://cdn.skypack.dev/@octokit/plugin-paginate-rest";
       import dompurify from "https://cdn.skypack.dev/dompurify";
+      import { marked } from "https://cdn.skypack.dev/marked";
 
       /* TODO inject this */
       const token = "XXX";
@@ -147,13 +153,6 @@
         auth: token,
       });
       const [owner, repo] = repository.split("/");
-      let store = undefined;
-
-      document.addEventListener("keyup", function (event) {
-        event.code === "KeyJ" && store.move(1);
-        event.code === "KeyK" && store.move(-1);
-        event.code === "KeyC" && store.toggle_open();
-      });
 
       Alpine.store("issues", {
         loading: true,
@@ -161,24 +160,38 @@
         list: [],
         index: -1,
 
+        // init sets up the events listeners and fetchs the issues.
         init() {
           this.fetch();
-          store = this; // easier reference outside of this.
           window.Alpine = Alpine; // Used for debugging.
+
+          document.addEventListener("keyup", (event) => {
+            event.code === "KeyJ" && this.move(1);
+            event.code === "KeyK" && this.move(-1);
+            event.code === "KeyC" && this.toggle_open();
+            event.code === "KeyO" && this.open();
+          });
         },
 
-        // TODO: Implement opening the original link.
+        // open opens the currently selected item in a new tab. It uses the
+        // original link from the HTML to find the correct link.
         open() {
-          console.log(this.list[this.index]);
+          window.open(
+            document.querySelector(
+              // Ugly query to find the link that contains the original link.
+              `details:nth-of-type(${this.index}) table tr th:nth-of-type(2) a`
+            ).href,
+            "_blank"
+          );
         },
 
-        // sanitize is a wrapper around dompurify.satnitize
+        // render_body is a wrapper around dompurify.satnitize and markedjs.parse.
         //
-        // @param {string} dirty - The dirty string to sanitize.
+        // @param {string} dirty - The dirty string to render after sanitization.
         //
-        // @return {string} - The sanitized string.
-        sanitize(dirty) {
-          return dompurify.sanitize(dirty);
+        // @return {string} - The rendered string.
+        render_body(dirty) {
+          return dompurify.sanitize(marked.parse(dirty));
         },
 
         // move changes which item is currently expanded.
