@@ -1,54 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <title></title>
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css"
-    />
+    <title>RSS</title>
+
     <style>
+      * {
+        font-family: monospace;
+      }
+      main > * {
+        padding: 0.5em;
+      }
+
+      button {
+        border: 1px solid black;
+        border-radius: 3px;
+        cursor: pointer;
+        opacity: 60%;
+      }
+
+      button:hover {
+        opacity: 100%;
+      }
+
+      button.open {
+        background-color: red;
+        color: white;
+      }
+
+      button.closed {
+        background-color: green;
+        color: white;
+      }
+
+      summary {
+        cursor: pointer;
+        list-style: none;
+      }
+
       .closed {
         opacity: 0.5;
+      }
+
+      details {
+        border-bottom: 1px solid black;
+      }
+
+      label {
+        cursor: pointer;
       }
     </style>
   </head>
 
-  <body class="container" x-data>
-    <main>
-      <p>
-        <template x-if="$store.issues.list.length == 0">
-          Loading <i aria-busy="true"></i>
-        </template>
+  <body x-data>
+    <!--
+      All the &nbsp; are needed to preserve whitespace between elements; the
+      html minifier will drop other spaces between elements, so being explicit
+      is required. It will yield extra spaces on full HTML, but that's OK.
 
-        <template x-if="$store.issues.list.length > 0">
-          <span><span x-text="$store.issues.list.length"></span> issues</span>
-        </template>
-      </p>
+      Don't use Emojis directly but their Unicode representation. Be nice with
+      editors that don't support them.
+    -->
+
+    <main>
+      <div>
+        <span x-show="$store.issues.loading"> &#9203; Loading </span>
+
+        <span x-show="!$store.issues.loading">
+          &#9989;&nbsp;
+          <span x-text="$store.issues.list.length + ' issues'"></span>
+        </span>
+
+        &nbsp;
+
+        <!--
+          x-effect here calls fetch whenever the x-model below changes.
+          It ensures that we run fetch *after* filter.open changes.
+        -->
+        <label x-effect="$store.issues.fetch()" for="open">
+          <input
+            type="checkbox"
+            id="open"
+            x-model="$store.issues.filter.open"
+          />
+          open
+        </label>
+
+        &nbsp;
+
+        <span x-text="JSON.stringify($store.issues.filter)"></span>
+      </div>
 
       <template x-for="issue in $store.issues.list">
         <details :class="{closed: issue.state === 'closed'}">
-          <summary x-text="issue.title"></summary>
-          <a href="#" role="button" @click.prevent="$store.issues.close(issue)"
-            >Close</a
-          >
+          <summary>
+            <div>
+              <!--
+                Use a single button to open/close an issue. The logic will be
+                done in toggle_open based on the current issue.
+              -->
+              <button
+                :class="issue.state"
+                @click.prevent="$store.issues.toggle_open(issue)"
+                x-text="issue.state == 'open' ? '&minus;' : '&plus;'"
+              ></button>
+
+              &nbsp;
+
+              <template x-for="label in issue.labels">
+                <button
+                  @click.prevent="$store.issues.filter_by_label(label.name)"
+                  x-text="label.name"
+                ></button>
+              </template>
+            </div>
+
+            <strong x-text="issue.title"></strong>
+          </summary>
+
+          <!-- x-html is not recommended, TODO: check if issue.body is safe -->
           <div x-html="issue.body"></div>
         </details>
       </template>
     </main>
 
     <script type="module">
-      // TODO inject this
+      /* TODO inject this */
       const token = "XXX";
       const repository = "XXX";
 
       import { Octokit, App } from "https://cdn.skypack.dev/octokit";
       import Alpine from "https://cdn.skypack.dev/alpinejs";
 
-      const octokit = new Octokit({ auth: token });
+      const { rest, paginate } = new Octokit({ auth: token });
       const [owner, repo] = repository.split("/");
 
-      window.Alpine = Alpine;
+      window.Alpine = Alpine; // Used for debugging
 
       document.addEventListener("keyup", function (event) {
         switch (event.code) {
@@ -59,17 +145,29 @@
             Alpine.store("issues").move(-1);
             break;
           case "KeyC":
-            Alpine.store("issues").close();
+            Alpine.store("issues").toggle_open();
             break;
         }
       });
 
       Alpine.store("issues", {
+        loading: true,
+        filter: { open: true },
         list: [],
         index: -1,
+
+        init() {
+          this.fetch();
+        },
+
+        // TODO: Implement opening the original link.
         open() {
           console.log(this.list[this.index]);
         },
+
+        // move changes which item is currently expanded.
+        //
+        // @param {integer} increment - +1 or -1 depending on next/previous display.
         move(increment) {
           this.index += increment;
           document.querySelectorAll("details").forEach((x, i) => {
@@ -81,13 +179,16 @@
             }
           });
         },
+
+        // fetch queries the GitHub API to list issues.
+        // It sets this.list upon done.
         fetch() {
-          octokit
-            .paginate(octokit.rest.issues.listForRepo, {
-              owner: owner,
-              repo: repo,
-              state: "open",
-            })
+          this.loading = true;
+          paginate(rest.issues.listForRepo, {
+            owner: owner,
+            repo: repo,
+            state: this.filter.open ? "open" : "closed",
+          })
             .then(
               (issues) =>
                 (this.list = issues.filter(
@@ -97,31 +198,38 @@
                     issue.pull_request === undefined
                 ))
             )
-            .catch((e) => {
-              alert(`[E] ${e}`);
-            });
+            .catch(alert)
+            .finally(() => (this.loading = false));
         },
 
-        close(issue) {
+        filter_by_label(label) {
+          console.log(`TODO, filter by label ${label}`);
+        },
+
+        // toggle_open switch the issue's state and updates via the GitHub API.
+        //
+        // @param {object} issue - The issue to use.
+        toggle_open(issue) {
+          // If no issue is passed, take the current issue. This allows using keyboard shortcuts.
+          // Since the keyboard handler is outside the store, we can't access
+          // `this`, so doing it here is easier.
           issue = issue || this.list[this.index];
-          issue.state = "closed";
-          octokit.rest.issues
+          issue.state = issue.state === "open" ? "closed" : "open";
+
+          rest.issues
             .update({
               owner: owner,
               repo: repo,
               issue_number: issue.number,
-              state: "closed",
+              state: issue.state,
             })
             .then(console.log)
-            .catch((e) => {
-              alert(`[E] ${e}`);
-            });
+            .catch(alert);
         },
       });
 
+      // Starting alpine manually is required because it was imported manually.
       Alpine.start();
-
-      Alpine.store("issues").fetch();
     </script>
   </body>
 </html>
