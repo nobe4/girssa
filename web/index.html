@@ -118,19 +118,16 @@
           </summary>
 
           <!-- x-html is not recommended, TODO: check if issue.body is safe -->
-          <div x-html="issue.body"></div>
+          <div x-html="$store.issues.sanitize(issue.body)"></div>
         </details>
       </template>
     </main>
 
     <script type="module">
-      // https://docs.skypack.dev/skypack-cdn/api-reference/pinned-urls-optimized
-      // https://cdn.skypack.dev/alpinejs
-      import Alpine from "https://cdn.skypack.dev/pin/alpinejs@v3.10.2-bcx0dLVVrB09MQMPHogv/mode=imports,min/optimized/alpinejs.js";
-      // https://cdn.skypack.dev/@octokit/rest
-      import { Octokit } from "https://cdn.skypack.dev/pin/@octokit/rest@v18.12.0-agvB4S6xEeiv5nWDhwV1/mode=imports,min/optimized/@octokit/rest.js";
-      // https://cdn.skypack.dev/@octokit/plugin-paginate-rest
-      import { paginateRest } from "https://cdn.skypack.dev/pin/@octokit/plugin-paginate-rest@v2.18.0-RK74prEAL54XeuxXGHB8/mode=imports,min/optimized/@octokit/plugin-paginate-rest.js";
+      import Alpine from "https://cdn.skypack.dev/alpinejs";
+      import { Octokit } from "https://cdn.skypack.dev/@octokit/rest";
+      import { paginateRest } from "https://cdn.skypack.dev/@octokit/plugin-paginate-rest";
+      import dompurify from "https://cdn.skypack.dev/dompurify";
 
       /* TODO inject this */
       const token = "XXX";
@@ -150,7 +147,7 @@
 
       Alpine.store("issues", {
         loading: true,
-        filter: { open: true },
+        filter: { open: true, labels: [] },
         list: [],
         index: -1,
 
@@ -163,6 +160,15 @@
         // TODO: Implement opening the original link.
         open() {
           console.log(this.list[this.index]);
+        },
+
+        // sanitize is a wrapper around dompurify.satnitize
+        //
+        // @param {string} dirty - The dirty string to sanitize.
+        //
+        // @return {string} - The sanitized string.
+        sanitize(dirty) {
+          return dompurify.sanitize(dirty);
         },
 
         // move changes which item is currently expanded.
@@ -188,6 +194,7 @@
             owner: owner,
             repo: repo,
             state: this.filter.open ? "open" : "closed",
+            labels: this.filter.labels.join(","),
           })
             .then(
               (issues) =>
