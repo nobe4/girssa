@@ -137,17 +137,9 @@
       window.Alpine = Alpine; // Used for debugging
 
       document.addEventListener("keyup", function (event) {
-        switch (event.code) {
-          case "KeyJ":
-            Alpine.store("issues").move(1);
-            break;
-          case "KeyK":
-            Alpine.store("issues").move(-1);
-            break;
-          case "KeyC":
-            Alpine.store("issues").toggle_open();
-            break;
-        }
+        event.code === "KeyJ" && Alpine.store("issues").move(1);
+        event.code === "KeyK" && Alpine.store("issues").move(-1);
+        event.code === "KeyC" && Alpine.store("issues").toggle_open();
       });
 
       Alpine.store("issues", {
