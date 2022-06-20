@@ -7,6 +7,11 @@
       rel="stylesheet"
       href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css"
     />
+    <style>
+      .closed {
+        opacity: 0.5;
+      }
+    </style>
   </head>
 
   <body class="container" x-data>
@@ -19,17 +24,12 @@
         <template x-if="$store.issues.list.length > 0">
           <span><span x-text="$store.issues.list.length"></span> issues</span>
         </template>
-
-        <details>
-          <summary>logs</summary>
-          <pre x-text="$store.issues.logs.join('\n')"></pre>
-        </details>
       </p>
 
       <template x-for="issue in $store.issues.list">
-        <details>
+        <details :class="{closed: issue.state === 'closed'}">
           <summary x-text="issue.title"></summary>
-          <a href="#" role="button" x-on:click="$store.issues.close(issue)"
+          <a href="#" role="button" @click.prevent="$store.issues.close(issue)"
             >Close</a
           >
           <div x-html="issue.body"></div>
@@ -50,45 +50,77 @@
 
       window.Alpine = Alpine;
 
+      document.addEventListener("keyup", function (event) {
+        switch (event.code) {
+          case "KeyJ":
+            Alpine.store("issues").move(1);
+            break;
+          case "KeyK":
+            Alpine.store("issues").move(-1);
+            break;
+          case "KeyC":
+            Alpine.store("issues").close();
+            break;
+        }
+      });
+
       Alpine.store("issues", {
         list: [],
-        logs: [],
+        index: -1,
+        open() {
+          console.log(this.list[this.index]);
+        },
+        move(increment) {
+          this.index += increment;
+          document.querySelectorAll("details").forEach((x, i) => {
+            if (i === this.index) {
+              x.setAttribute("open", true);
+              x.scrollIntoView();
+            } else {
+              x.removeAttribute("open");
+            }
+          });
+        },
         fetch() {
           octokit
             .paginate(octokit.rest.issues.listForRepo, {
               owner: owner,
               repo: repo,
-              state: "all",
+              state: "open",
             })
-            .then((issues) =>
-              issues.filter(
-                (issue) =>
-                  issue.body &&
-                  issue.body.length != 0 &&
-                  issue.pull_request === undefined
-              )
+            .then(
+              (issues) =>
+                (this.list = issues.filter(
+                  (issue) =>
+                    issue.body &&
+                    issue.body.length != 0 &&
+                    issue.pull_request === undefined
+                ))
             )
-            .then((list) => {
-              this.list = list;
-              this.logs.push("items loaded");
-            })
             .catch((e) => {
-              this.logs.push(`[E] ${e}`);
+              alert(`[E] ${e}`);
             });
         },
 
-        set(list) {
-          this.list = list;
-        },
-
         close(issue) {
-          console.log(issue);
+          issue = issue || this.list[this.index];
+          issue.state = "closed";
+          octokit.rest.issues
+            .update({
+              owner: owner,
+              repo: repo,
+              issue_number: issue.number,
+              state: "closed",
+            })
+            .then(console.log)
+            .catch((e) => {
+              alert(`[E] ${e}`);
+            });
         },
       });
 
       Alpine.start();
 
-      console.log("fetching issues");
       Alpine.store("issues").fetch();
     </script>
   </body>
