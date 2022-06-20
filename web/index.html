@@ -117,7 +117,10 @@
             <strong x-text="issue.title"></strong>
           </summary>
 
-          <!-- x-html is not recommended, TODO: check if issue.body is safe -->
+          <!--
+            issue.body is unsafe and can lead to XSS.
+            Sanitizing it is required if x-html is used.
+          -->
           <div x-html="$store.issues.sanitize(issue.body)"></div>
         </details>
       </template>
