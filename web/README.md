@@ -1,5 +1,7 @@
 # Girssa - Web
 
+![Demo](./demo.png)
+
 This folder contains a web interface you can use to interface with Girssa.
 
 If you're interested in the technical details, look at [`index.html`](./index.html).
