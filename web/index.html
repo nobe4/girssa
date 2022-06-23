@@ -1,17 +1,44 @@
+<!--
+
+  This file is a very simple example of how to create a Girssa web interface.
+  It uses as few resources as possible while still providing a somewhat nice
+  experience.
+
+  The data is pulled directly from the issues via octokit, all queries are done
+  against the REST API. Some of the code _could_ definitely be merged with the
+  girssa backend, but for the sake of simplicity it's not.
+
+
+  This file is formatted with Prettier and minified with `npm run web-build`,
+  so extra spacing are not a concern.
+
+  /!\ Warning: Authentication /!\
+  The PAT required for those actions is currently not
+  provided, it has a placeholder called ENCRYPTED_TOKEN_TO_INJECT. See the
+  README.md for setting it up. You are encouraged to use a strong password and
+  never expose your PAT to the world.
+
+-->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <title>RSS</title>
 
+    <!--
+      Minimalist CSS, no preprocessor, just simple border, font, color and layout
+      adjustments.
+    -->
     <style>
       * {
         font-family: monospace;
       }
+
       main > * {
         padding: 0.5em;
       }
 
       button {
+        line-height: 1.4em;
         border: 1px solid black;
         border-radius: 3px;
         cursor: pointer;
@@ -41,17 +68,29 @@
         opacity: 0.5;
       }
 
-      details {
-        border-bottom: 1px solid black;
-      }
-
       label {
         cursor: pointer;
       }
 
+      details {
+        border-bottom: 1px solid black;
+      }
+
       details > div > table {
         font-size: 1.2em;
+        line-height: 2em;
+
+        border-collapse: collapse;
         width: 100%;
+      }
+
+      details > div > table th {
+        border: 1px solid black;
+      }
+
+      details > div > table th > * {
+        width: 100%;
+        display: inline-block;
       }
     </style>
   </head>
@@ -66,77 +105,102 @@
       editors that don't support them.
     -->
 
-    <main>
-      <!--
+    <!--
+      Login page
+
+      Since x-if adds/remove items from the DOM and requires a single root
+      element, I prefered to use <main> in, instead of having the x-if inside
+      the <main>.
+    -->
+    <template x-if="!$store.issues.authenticated">
+      <main>
+        <input
+          placeholder="password + enter"
+          type="password"
+          @keyup.enter="$store.issues.authenticate($event.target.value)"
+        />
+      </main>
+    </template>
+
+    <!-- Items page -->
+    <template x-if="$store.issues.authenticated">
+      <main>
+        <!--
           x-effect here calls fetch whenever the x-model below changes.
-          It ensures that we run fetch *after* the state change.
+          It ensures that we run fetch() *after* the state change.
         -->
-      <nav x-effect="$store.issues.fetch()">
-        <span x-show="$store.issues.loading"> &#9203; Loading </span>
+        <nav x-effect="$store.issues.fetch()">
+          <!-- Loading box, with hourglass emoji -->
+          <span x-show="$store.issues.loading"> &#9203; Loading </span>
 
-        <span x-show="!$store.issues.loading">
-          &#9989;&nbsp;
-          <span x-text="$store.issues.list.length + ' issues'"></span>
-        </span>
+          <span x-show="!$store.issues.loading">
+            &#9989;&nbsp;
+            <span x-text="$store.issues.list.length + ' issues'"></span>
+          </span>
 
-        &nbsp;
+          &nbsp;
 
-        <label for="open">
-          <input
-            type="checkbox"
-            id="open"
-            x-model="$store.issues.filter.open"
-          />
-          open
-        </label>
+          <!-- Toggle display of open/closed items -->
+          <label for="open">
+            <input
+              type="checkbox"
+              id="open"
+              x-model="$store.issues.filter.open"
+            />
+            open
+          </label>
 
-        &nbsp;
-
-        <template x-for="label in $store.issues.filter.labels">
-          <button
-            @click.prevent="$store.issues.toggle_label(label)"
-            x-text="label"
-          ></button>
-        </template>
-
-        <span x-text="JSON.stringify($store.issues.filter)"></span>
-      </nav>
-
-      <template x-for="issue in $store.issues.list">
-        <details :class="{closed: issue.state === 'closed'}">
-          <summary>
-            <div>
-              <!--
-                Use a single button to open/close an issue. The logic will be
-                done in toggle_open based on the current issue.
-              -->
-              <button
-                :class="issue.state === 'open' ? 'red': 'green' "
-                @click.prevent="$store.issues.toggle_open(issue)"
-                x-text="issue.state == 'open' ? '-' : '+'"
-              ></button>
-
-              &nbsp;
-
-              <template x-for="label in issue.labels">
-                <button
-                  @click.prevent="$store.issues.toggle_label(label.name)"
-                  x-text="label.name"
-                ></button>
-              </template>
-            </div>
-
-            <strong x-text="issue.title"></strong>
-          </summary>
+          &nbsp;
 
           <!--
-            issue.body is unsafe and can lead to XSS.
-            Sanitizing it is required if x-html is used.
+            All labels are button to toggle their existence in the filter.
+
+            I.e. if you click a label from the items list or from the filter
+            bar, it will add or remove it from the search, depending on its presence.
+
+            Here is the filter-bar label list.
           -->
-          <div x-html="$store.issues.render_body(issue.body)"></div>
-        </details>
-      </template>
-    </main>
+          <template x-for="label in $store.issues.filter.labels">
+            <button
+              @click.prevent="$store.issues.toggle_label(label)"
+              x-text="label"
+            ></button>
+          </template>
+        </nav>
+
+        <template x-for="issue in $store.issues.list">
+          <details :class="{closed: issue.state === 'closed'}">
+            <summary>
+              <div>
+                <!-- Item label list.  -->
+                <button
+                  :class="issue.state === 'open' ? 'red': 'green' "
+                  @click.prevent="$store.issues.toggle_open(issue)"
+                  x-text="issue.state == 'open' ? '-' : '+'"
+                ></button>
+
+                &nbsp;
+
+                <template x-for="label in issue.labels">
+                  <button
+                    @click.prevent="$store.issues.toggle_label(label.name)"
+                    x-text="label.name"
+                  ></button>
+                </template>
+              </div>
+
+              <h3 x-text="issue.title"></h3>
+            </summary>
+
+            <!--
+              issue.body is unsafe and can lead to XSS.
+              Sanitizing it is required if x-html is used.
+            -->
+            <div x-html="$store.issues.render_body(issue.body)"></div>
+          </details>
+        </template>
+      </main>
+    </template>
 
     <script type="module">
       import Alpine from "https://cdn.skypack.dev/alpinejs";
@@ -144,17 +208,18 @@
       import { paginateRest } from "https://cdn.skypack.dev/@octokit/plugin-paginate-rest";
       import dompurify from "https://cdn.skypack.dev/dompurify";
       import { marked } from "https://cdn.skypack.dev/marked";
+      import { AES, enc } from "https://cdn.skypack.dev/crypto-js";
 
-      /* TODO inject this */
-      const token = "XXX";
-      const repository = "XXX";
-
-      const { rest, paginate } = new (Octokit.plugin(paginateRest))({
-        auth: token,
+      // Add extra attributes on links.
+      dompurify.addHook("afterSanitizeAttributes", function (node) {
+        if ("target" in node) {
+          node.setAttribute("target", "_blank");
+          node.setAttribute("rel", "noopener");
+        }
       });
-      const [owner, repo] = repository.split("/");
 
       Alpine.store("issues", {
+        authenticated: false,
         loading: true,
         filter: { open: true, labels: [] },
         list: [],
@@ -162,7 +227,6 @@
 
         // init sets up the events listeners and fetchs the issues.
         init() {
-          this.fetch();
           window.Alpine = Alpine; // Used for debugging.
 
           document.addEventListener("keyup", (event) => {
@@ -171,6 +235,50 @@
             event.code === "KeyC" && this.toggle_open();
             event.code === "KeyO" && this.open();
           });
+
+          // We're storing the password in the localstorage if we authenticated
+          // correctly.
+          const password = localStorage.getItem("password");
+          if (password) {
+            console.log("Found password in localstorage");
+            this.authenticate(password);
+          }
+        },
+
+        authenticate(password) {
+          try {
+            // The weird ... || (() => { throw "" })() is the only way I found to
+            // throw an error as a oneliner ¯\_(ツ)_/¯
+            const token =
+              AES.decrypt("ENCRYPTED_TOKEN_TO_INJECT", password).toString(
+                enc.Utf8
+              ) ||
+              (() => {
+                throw "couldn't decrypt token";
+              })();
+
+            const { rest, paginate } = new (Octokit.plugin(paginateRest))({
+              auth: token,
+            });
+            this.rest = rest;
+            this.paginate = paginate;
+
+            const repository =
+              AES.decrypt("ENCRYPTED_REPOSITORY_TO_INJECT", password).toString(
+                enc.Utf8
+              ) ||
+              (() => {
+                throw "couldn't decrypt repository";
+              })();
+            [this.owner, this.repo] = repository.split("/");
+          } catch (e) {
+            alert(`Invalid password: ${e}`);
+            return;
+          }
+
+          localStorage.setItem("password", password);
+          this.authenticated = true;
+          this.fetch();
         },
 
         // open opens the currently selected item in a new tab. It uses the
@@ -179,7 +287,12 @@
           window.open(
             document.querySelector(
               // Ugly query to find the link that contains the original link.
-              `details:nth-of-type(${this.index}) table tr th:nth-of-type(2) a`
+              // The original link is the 2nd element of the first table in the detail.
+              // No need to do table:nth-of-type(1) because querySelector
+              // already limits the result to 1.
+              `details:nth-of-type(${
+                this.index + 1
+              }) table tr th:nth-of-type(2) a`
             ).href,
             "_blank"
           );
@@ -213,9 +326,9 @@
         // It sets this.list upon done.
         fetch() {
           this.loading = true;
-          paginate(rest.issues.listForRepo, {
-            owner: owner,
-            repo: repo,
+          this.paginate(this.rest.issues.listForRepo, {
+            owner: this.owner,
+            repo: this.repo,
             state: this.filter.open ? "open" : "closed",
             labels: this.filter.labels.join(","),
           })
@@ -255,10 +368,10 @@
           issue = issue || this.list[this.index];
           issue.state = issue.state === "open" ? "closed" : "open";
 
-          rest.issues
+          this.rest.issues
             .update({
-              owner: owner,
-              repo: repo,
+              owner: this.owner,
+              repo: this.repo,
               issue_number: issue.number,
               state: issue.state,
             })

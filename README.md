@@ -34,6 +34,8 @@ Girssa sends the RSS items to the repository's issues. You can then consult them
 
 ## Usage and configuration
 
+### Usage
+
 You can run Girssa on an automated basis.
 
 ```yaml
