@@ -26,3 +26,6 @@ FILE="index.min.html" \
   REPOSITORY="<OWNER>/<NAME>" \
   node web/generate.js
 ```
+
+:warning: Using localstorage for sensitive information is a bad idea, but I
+don't have a better alternative for now. See https://github.com/nobe4/girssa/issues/61
