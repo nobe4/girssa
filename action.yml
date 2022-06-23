@@ -8,6 +8,11 @@ inputs:
     required: false
     default: false
 
+  repository:
+    description: The GitHub repository to store issues in, must be of format <owner>/<name>.
+    required: false
+    default: ${{ github.repository }}
+
   sources:
     description: "List of the RSS feeds to use, in JSON."
     required: false
@@ -17,11 +22,6 @@ inputs:
     description: The GitHub token used to create an authenticated client.
     required: false
     default: ${{ github.token }}
-
-  repository:
-    description: The GitHub repository to store issues in, must be of format <owner>/<name>.
-    required: false
-    default: ${{ github.repository }}
 
 outputs:
   count:

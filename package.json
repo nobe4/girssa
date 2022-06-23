@@ -1,6 +1,6 @@
 {
   "name": "girssa",
-  "version": "v1.0.2",
+  "version": "v1.0.3",
   "description": "GitHub RSS Action",
   "main": "src/index.js",
   "scripts": {
@@ -10,10 +10,10 @@
     "test": "npx jest --clearMocks",
     "test-debug": "node --inspect $(npm bin)/jest --clearMocks",
     "coverage": "npx jest --clearMocks --coverage",
-    "web-all": "npm run fix && npm run build-web",
-    "build-action": "NODE_OPTIONS=--no-experimental-fetch npx ncc --debug build --minify --out dist --source-map --license licenses.txt src/index.js ",
-    "build-web": "npx html-minifier-terser -c web/html-minify-conf.json web/index.html -o web/index.min.html",
-    "build": "npm run build-action && npm run build-web",
+    "action-build": "NODE_OPTIONS=--no-experimental-fetch npx ncc --debug build --minify --out dist --source-map --license licenses.txt src/index.js ",
+    "build": "npm run action-build && npm run web-build",
+    "web-all": "npm run fix && npm run web-build",
+    "web-build": "npx html-minifier-terser -c web/html-minify-conf.json web/index.html -o web/index.min.html",
     "all": "npm run fix && npm run lint && npm run coverage && npm run build"
   },
   "repository": {
@@ -39,6 +39,7 @@
   "devDependencies": {
     "@vercel/ncc": "^0.34.0",
     "eslint": "^8.18.0",
+    "crypto-js": "^4.1.1",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "html-minifier-terser": "^7.0.0-beta.0",
