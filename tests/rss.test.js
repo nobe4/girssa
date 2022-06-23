@@ -164,10 +164,10 @@ describe("parse", () => {
         return {};
       });
 
-    expect(rss.parse("raw_data")).rejects.toMatch("invalid XML");
+    expect(rss.parse("raw_data", source)).rejects.toMatch("invalid XML");
 
     // This time without the mock
-    expect(rss.parse("raw_data")).rejects.toMatch("invalid XML");
+    expect(rss.parse("raw_data", source)).rejects.toMatch("invalid XML");
   });
 
   it("calls rss.parse_item on each found item in an RSS feed", () => {

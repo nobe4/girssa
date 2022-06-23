@@ -139,7 +139,7 @@ const self = {
 
       // If channel is undefined, it means data wasn't XML, reject.
       if (channel == undefined) {
-        reject(`invalid XML:\n${data}`);
+        reject(`invalid XML for '${source.name}' '${source.rss_url}'\n${data}`);
         return;
       }
 
