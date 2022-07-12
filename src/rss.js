@@ -6,6 +6,15 @@ const { XMLParser } = require("fast-xml-parser");
 
 // Main rss object, all methods can be accessed via self.<method_name>.
 const self = {
+  // Custom HTTP Get options
+  get_options: {
+    headers: {
+      // Some websites require a user-agent set.
+      // E.g. Cloudfront
+      "User-Agent": "javascript",
+    },
+  },
+
   // fetch does an HTTP GET request to the provided URL to fetch the RSS feed.
   // The URL is expected to be correct.
   //
@@ -17,10 +26,10 @@ const self = {
     return new Promise((resolve, reject) => {
       core.debug(`Fetching ${url}`);
 
-      const req = https.get(url, (res) => {
+      const req = https.get(url, self.get_options, (res) => {
         // We're only expecting a 200, tho any 2XX would work.
         if (res.statusCode !== 200) {
-          return reject(`Request Failed.\nStatus Code: ${res.statusCode}`);
+          return reject(`Request Failed. Status Code: ${res.statusCode}.`);
         }
 
         // Parse the body
@@ -152,6 +161,12 @@ const self = {
       // Ensure we have an array of items.
       if (items && !Array.isArray(items)) items = [items];
 
+      // If there is no item, it can be OK, but it's better to warn.
+      if (!items || items.length == 0) {
+        core.warning(`No items found for '${source.name}'.`);
+        resolve([]);
+      }
+
       // Parse each items
       const parsed_items = items.map((item) => {
         return self.parse_item(item, source);
@@ -173,7 +188,12 @@ const self = {
         .fetch(source.rss_url)
         .then((data) => self.parse(data, source))
         .then(resolve)
-        .catch(reject);
+        .catch((e) => {
+          reject({
+            error: e,
+            source: source,
+          });
+        });
     });
   },
 };

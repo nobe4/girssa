@@ -15,8 +15,9 @@ const source = {
 
 describe("fetch", () => {
   it("rejects a non-200 status code", async () => {
-    jest.spyOn(https, "get").mockImplementationOnce((url, cb) => {
+    jest.spyOn(https, "get").mockImplementationOnce((url, options, cb) => {
       expect(url).toBe("URL");
+      expect(options).toBe(rss.get_options);
       cb({ statusCode: 500 });
     });
 
@@ -28,8 +29,9 @@ describe("fetch", () => {
   it("reject if the request has an error", async () => {
     const error = new Error("error");
 
-    https.get = function (url) {
+    https.get = function (url, options) {
       expect(url).toBe("URL");
+      expect(options).toBe(rss.get_options);
 
       return {
         on: jest.fn((event, cb) => {
@@ -57,8 +59,9 @@ describe("fetch", () => {
       }
     });
 
-    https.get = jest.fn().mockImplementationOnce((url, cb) => {
+    https.get = jest.fn().mockImplementationOnce((url, options, cb) => {
       expect(url).toBe("URL");
+      expect(options).toBe(rss.get_options);
       cb({
         statusCode: 200,
         setEncoding: setEncodingMock,
@@ -213,7 +216,7 @@ describe("parse", () => {
       .mockReturnValueOnce({ rss: { channel: [{ item: [1] }, {}, {}] } });
 
     jest.spyOn(rss, "parse_item").mockReturnValueOnce("parsed_1");
-    expect(rss.parse("whatever")).resolves.toStrictEqual(["parsed_1"]);
+    expect(rss.parse("data")).resolves.toStrictEqual(["parsed_1"]);
   });
 
   it("works if there's only one item", () => {
@@ -223,7 +226,16 @@ describe("parse", () => {
       .mockReturnValueOnce({ rss: { channel: { item: 1 } } });
 
     jest.spyOn(rss, "parse_item").mockReturnValueOnce("parsed_1");
-    expect(rss.parse("whatever")).resolves.toStrictEqual(["parsed_1"]);
+    expect(rss.parse("data")).resolves.toStrictEqual(["parsed_1"]);
+  });
+
+  it("works if there's no item", () => {
+    jest
+      .spyOn(XMLParser.prototype, "parse")
+      .mockReturnValueOnce({ rss: { channel: { item: [] } } });
+
+    expect(rss.parse("data", { name: "name" })).resolves.toStrictEqual([]);
+    expect(core.warning).toHaveBeenCalledWith("No items found for 'name'.");
   });
 
   it("works for an XML document", () => {
@@ -264,6 +276,9 @@ describe("get", () => {
 
   it("fails and rejects", async () => {
     jest.spyOn(rss, "fetch").mockRejectedValueOnce("error");
-    await expect(rss.get(source)).rejects.toBe("error");
+    await expect(rss.get(source)).rejects.toStrictEqual({
+      error: "error",
+      source: source,
+    });
   });
 });
