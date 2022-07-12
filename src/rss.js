@@ -152,6 +152,12 @@ const self = {
       // Ensure we have an array of items.
       if (items && !Array.isArray(items)) items = [items];
 
+      // If there are no items, it can be OK, but it's better to warn.
+      if (!items || items.length == 0) {
+        core.warning(`No items found for '${source.name}'.`);
+        resolve([]);
+      }
+
       // Parse each items
       const parsed_items = items.map((item) => {
         return self.parse_item(item, source);

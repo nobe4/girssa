@@ -213,7 +213,7 @@ describe("parse", () => {
       .mockReturnValueOnce({ rss: { channel: [{ item: [1] }, {}, {}] } });
 
     jest.spyOn(rss, "parse_item").mockReturnValueOnce("parsed_1");
-    expect(rss.parse("whatever")).resolves.toStrictEqual(["parsed_1"]);
+    expect(rss.parse("data")).resolves.toStrictEqual(["parsed_1"]);
   });
 
   it("works if there's only one item", () => {
@@ -223,7 +223,16 @@ describe("parse", () => {
       .mockReturnValueOnce({ rss: { channel: { item: 1 } } });
 
     jest.spyOn(rss, "parse_item").mockReturnValueOnce("parsed_1");
-    expect(rss.parse("whatever")).resolves.toStrictEqual(["parsed_1"]);
+    expect(rss.parse("data")).resolves.toStrictEqual(["parsed_1"]);
+  });
+
+  it("works if there's no item", () => {
+    jest
+      .spyOn(XMLParser.prototype, "parse")
+      .mockReturnValueOnce({ rss: { channel: { item: [] } } });
+
+    expect(rss.parse("data", { name: "name" })).resolves.toStrictEqual([]);
+    expect(core.warning).toHaveBeenCalledWith("No items found for 'name'.");
   });
 
   it("works for an XML document", () => {
