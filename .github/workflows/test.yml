@@ -7,6 +7,10 @@ on:
       - main
       - "releases/*"
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   units:
     runs-on: ubuntu-latest
