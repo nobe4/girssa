@@ -10,7 +10,7 @@
     "test": "npx jest --clearMocks",
     "test-debug": "node --inspect $(npm bin)/jest --clearMocks",
     "coverage": "npx jest --clearMocks --coverage",
-    "action-build": "NODE_OPTIONS=--no-experimental-fetch npx ncc --debug build --minify --out dist --source-map --license licenses.txt src/index.js ",
+    "action-build": "NODE_OPTIONS=--no-experimental-fetch npx ncc --debug build --out dist --source-map --license licenses.txt src/index.js ",
     "build": "npm run action-build && npm run web-build",
     "web-all": "npm run fix && npm run web-build",
     "web-build": "npx html-minifier-terser -c web/html-minify-conf.json web/index.html -o web/index.min.html",
