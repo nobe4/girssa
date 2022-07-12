@@ -173,7 +173,12 @@ const self = {
         .fetch(source.rss_url)
         .then((data) => self.parse(data, source))
         .then(resolve)
-        .catch(reject);
+        .catch((e) => {
+          reject({
+            error: e,
+            source: source,
+          });
+        });
     });
   },
 };

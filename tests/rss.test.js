@@ -264,6 +264,9 @@ describe("get", () => {
 
   it("fails and rejects", async () => {
     jest.spyOn(rss, "fetch").mockRejectedValueOnce("error");
-    await expect(rss.get(source)).rejects.toBe("error");
+    await expect(rss.get(source)).rejects.toStrictEqual({
+      error: "error",
+      source: source,
+    });
   });
 });
