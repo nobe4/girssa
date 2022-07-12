@@ -52,9 +52,9 @@ git push --tags
 RELEASE_URL=$(gh release create \
 	--draft \
 	--generate-notes \
-	--notes "@nobe4 to write something here" \
+	--notes "<TODO>" \
 	--target main \
-	--title "${NEW_VERSION}" \
+	--title "${NEW_VERSION} - The one that <TODO>" \
 	"${NEW_VERSION}"
 )
 
