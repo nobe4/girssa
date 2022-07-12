@@ -152,7 +152,7 @@ const self = {
       // Ensure we have an array of items.
       if (items && !Array.isArray(items)) items = [items];
 
-      // If there are no items, it can be OK, but it's better to warn.
+      // If there is no item, it can be OK, but it's better to warn.
       if (!items || items.length == 0) {
         core.warning(`No items found for '${source.name}'.`);
         resolve([]);
