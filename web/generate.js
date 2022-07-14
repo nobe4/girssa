@@ -2,15 +2,7 @@
 
 const { AES } = require("crypto-js");
 const { readFile, writeFile } = require("fs");
-
-const get_env = (name) => {
-  const value = process.env[name];
-  if (!value) {
-    console.error(`Missing ${name} env variable`);
-    process.exit(1);
-  }
-  return value;
-};
+const get_env = require("./get_env.js");
 
 const file_path = get_env("FILE").trim();
 const password = get_env("PASSWORD").trim();

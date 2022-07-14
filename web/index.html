@@ -20,6 +20,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>RSS</title>
 
     <!--
@@ -29,18 +30,33 @@
     <style>
       * {
         font-family: monospace;
+        text-align: justify;
       }
 
-      main > * {
-        padding: 0.5em;
+      @media only screen and (max-width: 768px) {
+        body {
+          font-size: 1.2em;
+        }
+
+        button {
+          min-heigh: 6em;
+          min-width: 3em;
+        }
       }
 
       button {
+        padding: 0 0.5em;
         line-height: 1.4em;
         border: 1px solid black;
         border-radius: 3px;
         cursor: pointer;
         opacity: 60%;
+
+        text-align: center;
+        display: inline-block;
+
+        min-height: 2em;
+        min-width: 2em;
       }
 
       button:hover {
@@ -57,21 +73,41 @@
         color: white;
       }
 
+      .closed {
+        opacity: 0.5;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+      }
+
+      main > * {
+        padding: 0.5em;
+      }
+
       summary {
         cursor: pointer;
         list-style: none;
       }
 
-      .closed {
-        opacity: 0.5;
-      }
-
-      label {
-        cursor: pointer;
+      summary::marker,
+      summary::-webkit-details-marker {
+        display: none;
       }
 
       details {
+        overflow-y: scroll;
         border-bottom: 1px solid black;
+      }
+
+      details[open] {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+
+      details > div {
+        max-width: 800px;
+        margin: auto;
       }
 
       details > div > table {
@@ -80,6 +116,7 @@
 
         border-collapse: collapse;
         width: 100%;
+        text-align: center;
       }
 
       details > div > table th {
@@ -132,21 +169,17 @@
           <span x-show="$store.issues.loading"> &#9203; Loading </span>
 
           <span x-show="!$store.issues.loading">
-            &#9989;&nbsp;
             <span x-text="$store.issues.list.length + ' issues'"></span>
           </span>
 
           &nbsp;
 
           <!-- Toggle display of open/closed items -->
-          <label for="open">
-            <input
-              type="checkbox"
-              id="open"
-              x-model="$store.issues.filter.open"
-            />
-            open
-          </label>
+          <button
+            @click.prevent="$store.issues.filter.open = !$store.issues.filter.open"
+            :class="$store.issues.filter.open ? 'green': 'red' "
+            x-text="$store.issues.filter.open ? 'open' : 'closed'"
+          ></button>
 
           &nbsp;
 
@@ -187,14 +220,20 @@
                 </template>
               </div>
 
-              <h3 x-text="issue.title"></h3>
+              <!--
+                issue.title is unsafe and can lead to XSS.
+                Sanitizing it is required if x-html is used.
+
+                It's required because some article have special characters in the title.
+              -->
+              <h2 x-html="$store.issues.sanitize(issue.title)"></h2>
             </summary>
 
             <!--
               issue.body is unsafe and can lead to XSS.
               Sanitizing it is required if x-html is used.
             -->
-            <div x-html="$store.issues.render_body(issue.body)"></div>
+            <div x-html="$store.issues.sanitize(issue.body)"></div>
           </details>
         </template>
       </main>
@@ -246,7 +285,7 @@
         authenticate(password) {
           try {
             // The weird ... || (() => { throw "" })() is the only way I found to
-            // throw an error as a oneliner ¯\_(ツ)_/¯
+            // throw an error as a oneliner.
             const token =
               AES.decrypt("ENCRYPTED_TOKEN_TO_INJECT", password).toString(
                 enc.Utf8
@@ -296,12 +335,12 @@
           );
         },
 
-        // render_body is a wrapper around dompurify.satnitize and markedjs.parse.
+        // sanitize is a wrapper around dompurify.satnitize and markedjs.parse.
         //
         // @param {string} dirty - The dirty string to render after sanitization.
         //
         // @return {string} - The rendered string.
-        render_body(dirty) {
+        sanitize(dirty) {
           return dompurify.sanitize(marked.parse(dirty));
         },
 
