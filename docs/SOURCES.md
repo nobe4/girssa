@@ -18,6 +18,8 @@ It might be automated at some point.
 
 See https://github.com/nobe4/girssa/issues/28
 
+## Using [RSSBox](https://rssbox.herokuapp.com/)
+
 ## Youtube
 
 1. Go to the channel's page, i.e. [GitHub](https://www.youtube.com/c/GitHub).
