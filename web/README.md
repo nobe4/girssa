@@ -29,3 +29,19 @@ FILE="index.min.html" \
 
 :warning: Using localstorage for sensitive information is a bad idea, but I
 don't have a better alternative for now. See https://github.com/nobe4/girssa/issues/61
+
+# Local development
+
+You can use `npm run web-serve` or the [`serve.js`](./serve.js) script to make
+local development a bit easier.
+
+It takes roughly the same arguments as `generate`:
+
+```shell
+TOKEN="<TOKEN>" \
+  REPOSITORY="<OWNER>/<NAME>" \
+  npm run web-serve
+
+Listening on http://localhost:8080
+Password is 'password'
+```

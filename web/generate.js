@@ -1,16 +1,19 @@
 //!/usr/bin/env node
 
-const { AES } = require("crypto-js");
-const { readFile, writeFile } = require("fs");
+//
+// generate.js
+// Inject the secrets into an HTML file.
+//
+// Use FILE, PASSWORD, REPOSITORY and TOKEN environment variables to encrypt
+// and add them to the file, the output will be printed to STDIN.
+//
+// e.g.
+//   FILE=index.min.html TOKEN=REDACTED REPOSITORY=nobe4/girssa PASSWORD=REDACTED node generate.js
+//
 
-const get_env = (name) => {
-  const value = process.env[name];
-  if (!value) {
-    console.error(`Missing ${name} env variable`);
-    process.exit(1);
-  }
-  return value;
-};
+const { AES } = require("crypto-js");
+const { readFile } = require("fs");
+const get_env = require("./get_env.js");
 
 const file_path = get_env("FILE").trim();
 const password = get_env("PASSWORD").trim();
@@ -29,10 +32,5 @@ readFile(file_path, "utf-8", function (err, contents) {
     .replace("ENCRYPTED_TOKEN_TO_INJECT", encrypted_token)
     .replace("ENCRYPTED_REPOSITORY_TO_INJECT", encrypted_repository);
 
-  writeFile(file_path, replaced, "utf-8", function (err) {
-    if (err) {
-      console.error(err);
-      process.exit(1);
-    }
-  });
+  console.log(replaced);
 });
