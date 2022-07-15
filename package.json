@@ -13,6 +13,7 @@
     "action-build": "NODE_OPTIONS=--no-experimental-fetch npx ncc --debug build --minify --out dist --source-map --license licenses.txt src/index.js ",
     "build": "npm run action-build && npm run web-build",
     "web-all": "npm run fix && npm run web-build",
+    "web-serve": "node web/serve",
     "web-build": "npx html-minifier-terser -c web/html-minify-conf.json web/index.html -o web/index.min.html",
     "all": "npm clean-install && npm run fix && npm run lint && npm run coverage && npm run build"
   },
