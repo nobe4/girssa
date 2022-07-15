@@ -1,5 +1,15 @@
 //!/usr/bin/env node
 
+//
+// serve.js
+// Create a very simple HTTP Server that injects secrets at query-time.
+//
+// Use TOKEN and REPOSITORY environment variables to inject into the template.
+//
+// e.g.
+//   TOKEN=REDACTED REPOSITORY=nobe4/girssa node serve.js
+//
+
 const { createServer: serve } = require("http");
 const { readFile: read } = require("fs");
 const { AES } = require("crypto-js");
@@ -13,6 +23,11 @@ const encrypted_repository = AES.encrypt(repository, password).toString();
 const encrypted_token = AES.encrypt(token, password).toString();
 
 serve(function (req, res) {
+  // Default to index.html
+  if (req.url == "/") {
+    req.url = "/index.html";
+  }
+
   read(__dirname + req.url, "utf-8", function (err, contents) {
     if (err) {
       res.writeHead(404);
