@@ -21,10 +21,5 @@ readFile(file_path, "utf-8", function (err, contents) {
     .replace("ENCRYPTED_TOKEN_TO_INJECT", encrypted_token)
     .replace("ENCRYPTED_REPOSITORY_TO_INJECT", encrypted_repository);
 
-  writeFile(file_path, replaced, "utf-8", function (err) {
-    if (err) {
-      console.error(err);
-      process.exit(1);
-    }
-  });
+  console.log(replaced);
 });
