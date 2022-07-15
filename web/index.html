@@ -38,13 +38,15 @@
           font-size: 1.2em;
         }
 
-        button {
+        button,
+        select {
           min-heigh: 6em;
           min-width: 3em;
         }
       }
 
-      button {
+      button,
+      select {
         padding: 0 0.5em;
         line-height: 1.4em;
         border: 1px solid black;
@@ -165,19 +167,20 @@
           It ensures that we run fetch() *after* the state change.
         -->
         <nav x-effect="$store.issues.fetch()">
-          <!-- Loading box, with hourglass emoji -->
-          <span x-show="$store.issues.loading"> &#9203; Loading </span>
-
-          <span x-show="!$store.issues.loading">
-            <span x-text="$store.issues.list.length + ' issues'"></span>
-          </span>
+          <!--
+            Simple navigation menu: Increment/decrement the filter page.
+            Don't try to do anthing else.
+          -->
+          <button @click.prevent="$store.issues.filter.page --">-</button>
+          <span x-text="$store.issues.filter.page"></span>
+          <button @click.prevent="$store.issues.filter.page ++">+</button>
 
           &nbsp;
 
           <!-- Toggle display of open/closed items -->
           <button
-            @click.prevent="$store.issues.filter.open = !$store.issues.filter.open"
-            :class="$store.issues.filter.open ? 'green': 'red' "
+            @click.prevent="$store.issues.filter.open = !$store.issues.filter.open; $store.issues.filter.page = 1"
+            class="$store.issues.filter.open ? 'green': 'red'"
             x-text="$store.issues.filter.open ? 'open' : 'closed'"
           ></button>
 
@@ -198,6 +201,9 @@
             ></button>
           </template>
         </nav>
+
+        <!-- Loading box, with hourglass emoji -->
+        <span x-show="$store.issues.loading"> &#9203; </span>
 
         <template x-for="issue in $store.issues.list">
           <details :class="{closed: issue.state === 'closed'}">
@@ -242,7 +248,6 @@
     <script type="module">
       import Alpine from "https://cdn.skypack.dev/alpinejs";
       import { Octokit } from "https://cdn.skypack.dev/@octokit/rest";
-      import { paginateRest } from "https://cdn.skypack.dev/@octokit/plugin-paginate-rest";
       import dompurify from "https://cdn.skypack.dev/dompurify";
       import { marked } from "https://cdn.skypack.dev/marked";
       import { AES, enc } from "https://cdn.skypack.dev/crypto-js";
@@ -258,7 +263,7 @@
       Alpine.store("issues", {
         authenticated: false,
         loading: true,
-        filter: { open: true, labels: [] },
+        filter: { open: true, labels: [], page: 1, per_page: 10 },
         list: [],
         index: -1,
 
@@ -277,7 +282,6 @@
           // correctly.
           const password = localStorage.getItem("password");
           if (password) {
-            console.log("Found password in localstorage");
             this.authenticate(password);
           }
         },
@@ -294,11 +298,7 @@
                 throw "couldn't decrypt token";
               })();
 
-            const { rest, paginate } = new (Octokit.plugin(paginateRest))({
-              auth: token,
-            });
-            this.rest = rest;
-            this.paginate = paginate;
+            this.rest = new Octokit({ auth: token });
 
             const repository =
               AES.decrypt("ENCRYPTED_REPOSITORY_TO_INJECT", password).toString(
@@ -363,15 +363,18 @@
         // It sets this.list upon done.
         fetch() {
           this.loading = true;
-          this.paginate(this.rest.issues.listForRepo, {
-            owner: this.owner,
-            repo: this.repo,
-            state: this.filter.open ? "open" : "closed",
-            labels: this.filter.labels.join(","),
-          })
+          this.rest.issues
+            .listForRepo({
+              owner: this.owner,
+              repo: this.repo,
+              state: this.filter.open ? "open" : "closed",
+              labels: this.filter.labels.join(","),
+              page: this.filter.page,
+              per_page: this.filter.per_page,
+            })
             .then(
-              (issues) =>
-                (this.list = issues.filter(
+              ({ data }) =>
+                (this.list = data.filter(
                   (issue) =>
                     issue.body &&
                     issue.body.length != 0 &&
@@ -393,6 +396,9 @@
           } else {
             this.filter.labels.splice(i, 1);
           }
+
+          // Reset the page
+          this.filter.page = 1;
         },
 
         // toggle_open switch the issue's state and updates via the GitHub API.
@@ -412,7 +418,6 @@
               issue_number: issue.number,
               state: issue.state,
             })
-            .then(console.log)
             .catch(alert);
         },
       });
