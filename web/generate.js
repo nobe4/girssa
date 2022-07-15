@@ -1,7 +1,18 @@
 //!/usr/bin/env node
 
+//
+// generate.js
+// Inject the secrets into an HTML file.
+//
+// Use FILE, PASSWORD, REPOSITORY and TOKEN environment variables to encrypt
+// and add them to the file, the output will be printed to STDIN.
+//
+// e.g.
+//   FILE=index.min.html TOKEN=REDACTED REPOSITORY=nobe4/girssa PASSWORD=REDACTED node generate.js
+//
+
 const { AES } = require("crypto-js");
-const { readFile, writeFile } = require("fs");
+const { readFile } = require("fs");
 const get_env = require("./get_env.js");
 
 const file_path = get_env("FILE").trim();
