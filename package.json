@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/nobe4/girssa#readme",
   "dependencies": {
-    "@actions/core": "^1.9.0",
+    "@actions/core": "^1.9.1",
     "@actions/github": "^5.0.3",
     "fast-xml-parser": "^4.0.9"
   },
