@@ -209,6 +209,7 @@ describe("format", () => {
       title: "title",
       content: "content",
       published: 1044072306000, // 01/02/2003, 04:05:06
+      embed: "embed",
     };
 
     const expected = [
@@ -216,6 +217,7 @@ describe("format", () => {
       "| [name](url) | [original](link) | 01/02/2003, 04:05:06 |",
       "| --- | --- | --- |",
       "",
+      "embed",
       "content",
     ].join("\n");
 

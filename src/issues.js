@@ -121,13 +121,14 @@ const self = {
       `| [${item.source.name}](${item.source.url}) | [original](${item.link}) | ${formatted_published} |`,
       `| --- | --- | --- |`,
       ``,
+      `${item.embed}`,
       `${item.content}`,
     ].join("\n");
 
     return body;
   },
 
-  // create creates a new issue for the rss item.
+  // create_one creates a new issue for the rss item.
   // https://octokit.github.io/rest.js/v18#issues-create
   //
   // Using a `delay` value to prevent hitting the HTTP Rate Limit.
