@@ -61,6 +61,24 @@ describe("parse_link", () => {
   });
 });
 
+describe("parse_embed", () => {
+  [
+    { item: { link: "link" }, expected: "link" },
+    {
+      item: { link: "https://nitter.net/something#m" },
+      expected: `<iframe src="https://nitter.net/something/embed"></iframe>`,
+    },
+    {
+      item: { "yt:videoId": "id" },
+      expected: `<iframe src="https://www.youtube-nocookie.com/embed/id" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>`,
+    },
+  ].forEach((t) => {
+    it(`works for ${JSON.stringify(t.item)}`, () => {
+      expect(parser.parse_embed(t.item)).toBe(t.expected);
+    });
+  });
+});
+
 describe("parse_item", () => {
   const expected = {
     source: source,
@@ -69,6 +87,7 @@ describe("parse_item", () => {
     link: "link",
     content: "content",
     published: "published",
+    embed: "link",
   };
 
   const tests = [
@@ -153,7 +172,7 @@ describe("parse", () => {
       .mockReturnValueOnce({ rss: { channel: [{ item: [1] }, {}, {}] } });
 
     jest.spyOn(parser, "parse_item").mockReturnValueOnce("parsed_1");
-    expect(parser.parse("data")).resolves.toStrictEqual(["parsed_1"]);
+    expect(parser.parse("data", source)).resolves.toStrictEqual(["parsed_1"]);
   });
 
   it("works if there's only one item", () => {
@@ -163,7 +182,7 @@ describe("parse", () => {
       .mockReturnValueOnce({ rss: { channel: { item: 1 } } });
 
     jest.spyOn(parser, "parse_item").mockReturnValueOnce("parsed_1");
-    expect(parser.parse("data")).resolves.toStrictEqual(["parsed_1"]);
+    expect(parser.parse("data", source)).resolves.toStrictEqual(["parsed_1"]);
   });
 
   it("works if there's no item", () => {
@@ -178,7 +197,7 @@ describe("parse", () => {
   it("works for an XML document", () => {
     const rss_feed = fs.readFileSync("tests/fixtures/rss_feed.xml").toString();
 
-    parser.parse(rss_feed).then((data) => {
+    parser.parse(rss_feed, source).then((data) => {
       expect(data).toHaveLength(2);
       expect(data[0].published).toBe(1654079316000);
       expect(data[1].published).toBe(1654078660000);
@@ -190,7 +209,7 @@ describe("parse", () => {
       .readFileSync("tests/fixtures/atom_feed.xml")
       .toString();
 
-    parser.parse(atom_feed).then((data) => {
+    parser.parse(atom_feed, source).then((data) => {
       expect(data).toHaveLength(2);
       expect(data[0].published).toBe(1640995200000);
       expect(data[1].published).toBe(1640995200000);
