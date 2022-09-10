@@ -139,14 +139,17 @@ const self = {
       return `<iframe src="https://www.youtube-nocookie.com/embed/${item["yt:videoId"]}" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
     }
 
+    // Any further parsing requires the link to be set.
+    if (!item.link || item.link == "") return;
+
     // Nitter also embeds directly
-    if (item.link && item.link.startsWith("https://nitter.net/")) {
+    if (item.link.startsWith("https://nitter.net/")) {
       let iframe_src = item.link.replace("#m", "") + "/embed";
       return `<iframe src="${iframe_src}"></iframe>`;
     }
 
     // Default to the item link, which we'll try to use in an `<iframe>` directly.
-    if (item.link && item.link != "") return item.link;
+    return item.link;
   },
 };
 
