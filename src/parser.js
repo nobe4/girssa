@@ -140,7 +140,7 @@ const self = {
     }
 
     // Nitter also embeds directly
-    if (item.link.startsWith("https://nitter.net/")) {
+    if (item.link && item.link.startsWith("https://nitter.net/")) {
       let iframe_src = item.link.replace("#m", "") + "/embed";
       return `<iframe src="${iframe_src}"></iframe>`;
     }

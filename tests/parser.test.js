@@ -63,6 +63,7 @@ describe("parse_link", () => {
 
 describe("parse_embed", () => {
   [
+    { item: { no: "link" }, expected: undefined },
     { item: { link: "link" }, expected: "link" },
     {
       item: { link: "https://nitter.net/something#m" },
