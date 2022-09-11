@@ -64,7 +64,7 @@ describe("parse_link", () => {
 describe("parse_embed", () => {
   [
     { item: { no: "link" }, expected: undefined },
-    { item: { link: "link" }, expected: "link" },
+    { item: { link: "link" }, expected: `<iframe src="link"></iframe>` },
     {
       item: { link: "https://nitter.net/something#m" },
       expected: `<iframe src="https://nitter.net/something/embed"></iframe>`,

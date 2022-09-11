@@ -149,7 +149,7 @@ const self = {
     }
 
     // Default to the item link, which we'll try to use in an `<iframe>` directly.
-    return item.link;
+    return `<iframe src="${item.link}"></iframe>`;
   },
 };
 
