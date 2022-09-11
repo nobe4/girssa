@@ -88,7 +88,7 @@ describe("parse_item", () => {
     link: "link",
     content: "content",
     published: "published",
-    embed: "link",
+    embed: `<iframe src="link"></iframe>`,
   };
 
   const tests = [
