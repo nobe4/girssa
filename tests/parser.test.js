@@ -52,30 +52,11 @@ describe("parse_link", () => {
     { item: { not_link: "link" }, expected: undefined },
     {
       item: { "yt:videoId": "id" },
-      expected: "https://www.youtube.com/watch?v=id",
+      expected: "https://www.youtube-nocookie.com/embed/id",
     },
   ].forEach((t) => {
     it(`works for ${JSON.stringify(t.item)}`, () => {
       expect(parser.parse_link(t.item)).toBe(t.expected);
-    });
-  });
-});
-
-describe("parse_embed", () => {
-  [
-    { item: { no: "link" }, expected: undefined },
-    { item: { link: "link" }, expected: `<iframe src="link"></iframe>` },
-    {
-      item: { link: "https://nitter.net/something#m" },
-      expected: `<iframe src="https://nitter.net/something/embed"></iframe>`,
-    },
-    {
-      item: { "yt:videoId": "id" },
-      expected: `<iframe src="https://www.youtube-nocookie.com/embed/id" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>`,
-    },
-  ].forEach((t) => {
-    it(`works for ${JSON.stringify(t.item)}`, () => {
-      expect(parser.parse_embed(t.item)).toBe(t.expected);
     });
   });
 });
@@ -88,7 +69,6 @@ describe("parse_item", () => {
     link: "link",
     content: "content",
     published: "published",
-    embed: `<iframe src="link"></iframe>`,
   };
 
   const tests = [

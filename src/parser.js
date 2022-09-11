@@ -82,7 +82,6 @@ const self = {
       content: self.parse_content(item),
       link: self.parse_link(item),
       published: self.parse_published(item),
-      embed: self.parse_embed(item),
     };
   },
 
@@ -124,32 +123,8 @@ const self = {
 
     // Youtube doesn't pass the link directly, but the video id
     if (item["yt:videoId"]) {
-      return `https://www.youtube.com/watch?v=${item["yt:videoId"]}`;
+      return `https://www.youtube-nocookie.com/embed/${item["yt:videoId"]}`;
     }
-  },
-
-  // parse_embed tries to get the embed link from the source
-  //
-  // @param {object} item - The item to extract the embed from.
-  //
-  // @return {object} - The embed to use.
-  parse_embed(item) {
-    // Youtube provides an embed, use the privacy-enhanced mode.
-    if (item["yt:videoId"]) {
-      return `<iframe src="https://www.youtube-nocookie.com/embed/${item["yt:videoId"]}" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
-    }
-
-    // Any further parsing requires the link to be set.
-    if (!item.link || item.link == "") return;
-
-    // Nitter also embeds directly
-    if (item.link.startsWith("https://nitter.net/")) {
-      let iframe_src = item.link.replace("#m", "") + "/embed";
-      return `<iframe src="${iframe_src}"></iframe>`;
-    }
-
-    // Default to the item link, which we'll try to use in an `<iframe>` directly.
-    return `<iframe src="${item.link}"></iframe>`;
   },
 };
 
