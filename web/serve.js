@@ -15,14 +15,13 @@ const { readFile: read } = require("fs");
 const { AES } = require("crypto-js");
 const get_env = require("./get_env.js");
 
-const port = 8080;
 const token = get_env("TOKEN").trim();
 const repository = get_env("REPOSITORY").trim();
 const password = "password";
 const encrypted_repository = AES.encrypt(repository, password).toString();
 const encrypted_token = AES.encrypt(token, password).toString();
 
-serve(function (req, res) {
+const server = serve(function (req, res) {
   // Default to index.html
   if (req.url == "/") {
     req.url = "/index.html";
@@ -42,7 +41,10 @@ serve(function (req, res) {
     res.writeHead(200, { "Content-Type": "text/html" });
     res.end(replaced);
   });
-}).listen(port);
+});
 
-console.log(`Listening on http://localhost:${port}`);
+server.listen(0, function () {
+  console.log(`Listening on http://localhost:${server.address().port}`);
+});
+
 console.log(`Password is 'password'`);
