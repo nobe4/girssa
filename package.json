@@ -33,13 +33,13 @@
   },
   "homepage": "https://github.com/nobe4/girssa#readme",
   "dependencies": {
-    "@actions/core": "^1.9.1",
-    "@actions/github": "^5.1.0",
-    "fast-xml-parser": "^4.0.10"
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^5.1.1",
+    "fast-xml-parser": "^4.0.11"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.34.0",
-    "eslint": "^8.24.0",
+    "eslint": "^8.26.0",
     "crypto-js": "^4.1.1",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
