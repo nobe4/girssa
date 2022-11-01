@@ -55,6 +55,7 @@ describe("parse_link", () => {
     { item: { link: { "@_href": "link" } }, expected: "link" },
     { item: { link: {} }, expected: undefined },
 
+    { item: { link: 2 }, expected: undefined },
     { item: { not_link: "link" }, expected: undefined },
     {
       item: { "yt:videoId": "id" },

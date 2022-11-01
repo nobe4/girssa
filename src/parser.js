@@ -123,8 +123,10 @@ const self = {
   // @return {date} - The link to use.
   parse_link(item) {
     if (item.link) {
-      if ((typeof item.link) == "string" && item.link != "") return item.link;
-      if ((typeof item.link) == "object" && item.link["@_href"] != "") return item.link["@_href"];
+      if (typeof item.link == "string" && item.link != "") return item.link;
+      if (typeof item.link == "object" && item.link["@_href"] != "") {
+        return item.link["@_href"];
+      }
     }
 
     // Youtube doesn't pass the link directly, but the video id
