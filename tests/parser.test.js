@@ -68,6 +68,36 @@ describe("parse_link", () => {
   });
 });
 
+describe("parse_id", () => {
+  [
+    // Id is a string
+    { item: { id: "id" }, expected: "id" },
+    { item: { id: "" }, expected: undefined },
+
+    // Id is an object
+    { item: { id: { "#text": "id" } }, expected: "id" },
+    { item: { id: {} }, expected: undefined },
+
+    { item: { id: 2 }, expected: undefined },
+    { item: { not_id: "id" }, expected: undefined },
+
+    // Guid is a string
+    { item: { guid: "guid" }, expected: "guid" },
+    { item: { guid: "" }, expected: undefined },
+
+    // Guid is an object
+    { item: { guid: { "#text": "guid" } }, expected: "guid" },
+    { item: { guid: {} }, expected: undefined },
+
+    { item: { guid: 2 }, expected: undefined },
+    { item: { not_guid: "guid" }, expected: undefined },
+  ].forEach((t) => {
+    it(`works for ${JSON.stringify(t.item)}`, () => {
+      expect(parser.parse_id(t.item)).toBe(t.expected);
+    });
+  });
+});
+
 describe("parse_item", () => {
   const expected = {
     source: source,
