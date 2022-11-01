@@ -46,7 +46,10 @@ const self = {
   //                     Reject with any error that occured.
   parse(data, source) {
     return new Promise((resolve, reject) => {
-      const parser = new XMLParser();
+      const options = {
+        ignoreAttributes: false,
+      };
+      const parser = new XMLParser(options);
       const result = parser.parse(data);
 
       // Get the channel
@@ -119,7 +122,10 @@ const self = {
   //
   // @return {date} - The link to use.
   parse_link(item) {
-    if (item.link && item.link != "") return item.link;
+    if (item.link) {
+      if ((typeof item.link) == "string" && item.link != "") return item.link;
+      if ((typeof item.link) == "object" && item.link["@_href"] != "") return item.link["@_href"];
+    }
 
     // Youtube doesn't pass the link directly, but the video id
     if (item["yt:videoId"]) {

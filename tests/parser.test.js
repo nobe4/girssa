@@ -47,8 +47,14 @@ describe("parse_published", () => {
 
 describe("parse_link", () => {
   [
+    // Link is a string
     { item: { link: "link" }, expected: "link" },
     { item: { link: "" }, expected: undefined },
+
+    // Link is an object
+    { item: { link: { "@_href": "link" } }, expected: "link" },
+    { item: { link: {} }, expected: undefined },
+
     { item: { not_link: "link" }, expected: undefined },
     {
       item: { "yt:videoId": "id" },
