@@ -1,6 +1,6 @@
 {
   "name": "girssa",
-  "version": "v1.0.5",
+  "version": "v1.1.0",
   "description": "GitHub RSS Action",
   "main": "src/index.js",
   "scripts": {

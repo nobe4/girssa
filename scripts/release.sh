@@ -31,7 +31,7 @@ echo "Last release available at https://github.com/nobe4/girssa/releases/tag/${L
 
 if [[ "${LAST_VERSION}" = "${NEW_VERSION}" ]]; then
 	echo "The version ${LAST_VERSION} has already been published."
-	echo "Did you forget to bump it in VERSION?"
+	echo "Did you forget to bump it in package.json?"
 	exit 1
 fi
 
