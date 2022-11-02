@@ -47,16 +47,68 @@ describe("parse_published", () => {
 
 describe("parse_link", () => {
   [
+    // Link is a string
     { item: { link: "link" }, expected: "link" },
     { item: { link: "" }, expected: undefined },
-    { item: { not_link: "link" }, expected: undefined },
+
+    // Link is an object
+    { item: { link: { "@_href": "link" } }, expected: "link" },
+    { item: { link: {} }, expected: undefined },
+
+    // Link is an array
     {
-      item: { "yt:videoId": "id" },
-      expected: "https://www.youtube.com/watch?v=id",
+      item: { link: [{ "@_rel": "alternate", "@_href": "link" }] },
+      expected: "link",
     },
+    {
+      item: { link: [{ "@_rel": "not alternate", "@_href": "link" }] },
+      expected: undefined,
+    },
+    {
+      item: {
+        link: [
+          { "@_rel": "not alternate", "@_href": "link" },
+          { "@_rel": "alternate", "@_href": "link" },
+        ],
+      },
+      expected: "link",
+    },
+
+    { item: { link: 2 }, expected: undefined },
+    { item: { not_link: "link" }, expected: undefined },
   ].forEach((t) => {
     it(`works for ${JSON.stringify(t.item)}`, () => {
       expect(parser.parse_link(t.item)).toBe(t.expected);
+    });
+  });
+});
+
+describe("parse_id", () => {
+  [
+    // Id is a string
+    { item: { id: "id" }, expected: "id" },
+    { item: { id: "" }, expected: undefined },
+
+    // Id is an object
+    { item: { id: { "#text": "id" } }, expected: "id" },
+    { item: { id: {} }, expected: undefined },
+
+    { item: { id: 2 }, expected: undefined },
+    { item: { not_id: "id" }, expected: undefined },
+
+    // Guid is a string
+    { item: { guid: "guid" }, expected: "guid" },
+    { item: { guid: "" }, expected: undefined },
+
+    // Guid is an object
+    { item: { guid: { "#text": "guid" } }, expected: "guid" },
+    { item: { guid: {} }, expected: undefined },
+
+    { item: { guid: 2 }, expected: undefined },
+    { item: { not_guid: "guid" }, expected: undefined },
+  ].forEach((t) => {
+    it(`works for ${JSON.stringify(t.item)}`, () => {
+      expect(parser.parse_id(t.item)).toBe(t.expected);
     });
   });
 });

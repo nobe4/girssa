@@ -27,7 +27,7 @@ const self = {
   parse_item(item, source) {
     return {
       source: source,
-      id: item.guid || item.id,
+      id: self.parse_id(item),
       title: item.title,
       content: self.parse_content(item),
       link: self.parse_link(item),
@@ -46,7 +46,10 @@ const self = {
   //                     Reject with any error that occured.
   parse(data, source) {
     return new Promise((resolve, reject) => {
-      const parser = new XMLParser();
+      const options = {
+        ignoreAttributes: false,
+      };
+      const parser = new XMLParser(options);
       const result = parser.parse(data);
 
       // Get the channel
@@ -113,17 +116,52 @@ const self = {
     return Date.now();
   },
 
-  // parse_link tries to get the link date from the item.
+  // parse_link tries to get the link from the item.
   //
   // @param {object} item - The item to extract the link from.
   //
-  // @return {date} - The link to use.
+  // @return {string} - The link to use.
   parse_link(item) {
-    if (item.link && item.link != "") return item.link;
+    if (item.link) {
+      if (typeof item.link == "string" && item.link != "") return item.link;
 
-    // Youtube doesn't pass the link directly, but the video id
-    if (item["yt:videoId"]) {
-      return `https://www.youtube.com/watch?v=${item["yt:videoId"]}`;
+      if (typeof item.link == "object") {
+        // Single item
+        if (
+          typeof item.link["@_href"] == "string" &&
+          item.link["@_href"] != ""
+        ) {
+          return item.link["@_href"];
+        }
+
+        // Multiple items, need to find the alternate link
+        for (let i = 0; i < item.link.length; i++) {
+          if (item.link[i]["@_rel"] == "alternate") {
+            return item.link[i]["@_href"];
+          }
+        }
+      }
+    }
+  },
+
+  // parse_id tries to get the id from the item.
+  //
+  // @param {object} item - The item to extract the id from.
+  //
+  // @return {string} - The id to use.
+  parse_id(item) {
+    if (item.id) {
+      if (typeof item.id == "string") return item.id;
+      if (typeof item.id == "object" && item.id["#text"] != "") {
+        return item.id["#text"];
+      }
+    }
+
+    if (item.guid) {
+      if (typeof item.guid == "string") return item.guid;
+      if (typeof item.guid == "object" && item.guid["#text"] != "") {
+        return item.guid["#text"];
+      }
     }
   },
 };
