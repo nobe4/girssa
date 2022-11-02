@@ -55,12 +55,27 @@ describe("parse_link", () => {
     { item: { link: { "@_href": "link" } }, expected: "link" },
     { item: { link: {} }, expected: undefined },
 
+    // Link is an array
+    {
+      item: { link: [{ "@_rel": "alternate", "@_href": "link" }] },
+      expected: "link",
+    },
+    {
+      item: { link: [{ "@_rel": "not alternate", "@_href": "link" }] },
+      expected: undefined,
+    },
+    {
+      item: {
+        link: [
+          { "@_rel": "not alternate", "@_href": "link" },
+          { "@_rel": "alternate", "@_href": "link" },
+        ],
+      },
+      expected: "link",
+    },
+
     { item: { link: 2 }, expected: undefined },
     { item: { not_link: "link" }, expected: undefined },
-    {
-      item: { "yt:videoId": "id" },
-      expected: "https://www.youtube.com/watch?v=id",
-    },
   ].forEach((t) => {
     it(`works for ${JSON.stringify(t.item)}`, () => {
       expect(parser.parse_link(t.item)).toBe(t.expected);

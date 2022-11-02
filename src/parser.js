@@ -124,14 +124,23 @@ const self = {
   parse_link(item) {
     if (item.link) {
       if (typeof item.link == "string" && item.link != "") return item.link;
-      if (typeof item.link == "object" && item.link["@_href"] != "") {
-        return item.link["@_href"];
-      }
-    }
 
-    // Youtube doesn't pass the link directly, but the video id
-    if (item["yt:videoId"]) {
-      return `https://www.youtube.com/watch?v=${item["yt:videoId"]}`;
+      if (typeof item.link == "object") {
+        // Single item
+        if (
+          typeof item.link["@_href"] == "string" &&
+          item.link["@_href"] != ""
+        ) {
+          return item.link["@_href"];
+        }
+
+        // Multiple items, need to find the alternate link
+        for (let i = 0; i < item.link.length; i++) {
+          if (item.link[i]["@_rel"] == "alternate") {
+            return item.link[i]["@_href"];
+          }
+        }
+      }
     }
   },
 
