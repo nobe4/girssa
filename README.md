@@ -1,3 +1,7 @@
+> This was a fun project for a while, but I'm not using/maintaining anymore.
+
+---
+
 ```
   _____  _____  _____    _____  _____
  / ____||_   _||  __ \  / ____|/ ____|   /\
